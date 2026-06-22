@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Products - GroceryApp</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/home.css">
+  <link rel="stylesheet" href="css/products.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  
+  <nav class="navbar glass navbar-scrolled">
+    <div class="container navbar-content">
+      <a href="index.html" class="logo">
+        <i data-lucide="leaf"></i>
+        <span>GroceryApp</span>
+      </a>
+      
+      <div class="search-container">
+        <div class="input-group">
+          <i data-lucide="search" class="input-icon"></i>
+          <input type="text" class="input-field" placeholder="Search for 'Avocado'">
+        </div>
+      </div>
+      
+      <div class="nav-actions">
+        <a href="products.html" class="nav-link hidden-mobile text-primary">Categories</a>
+        <button class="btn-icon" aria-label="Dark Mode Toggle" id="theme-toggle">
+          <i data-lucide="moon"></i>
+        </button>
+        <a href="cart.html" class="btn-icon cart-btn" aria-label="Cart">
+          <i data-lucide="shopping-cart"></i>
+          <span class="badge badge-accent cart-badge">3</span>
+        </a>
+        <a href="profile.html" class="btn-icon hidden-mobile" aria-label="Profile">
+          <i data-lucide="user"></i>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container products-layout">
+    <aside class="filters-sidebar">
+      <div class="filter-group">
+        <h4>Categories</h4>
+        <div class="filter-list">
+          <label class="filter-item"><input type="checkbox" checked> All Categories</label>
+          <label class="filter-item"><input type="checkbox"> Fruits</label>
+          <label class="filter-item"><input type="checkbox"> Vegetables</label>
+          <label class="filter-item"><input type="checkbox"> Dairy & Eggs</label>
+          <label class="filter-item"><input type="checkbox"> Bakery</label>
+          <label class="filter-item"><input type="checkbox"> Snacks</label>
+          <label class="filter-item"><input type="checkbox"> Beverages</label>
+        </div>
+      </div>
+      
+      <div class="filter-group">
+        <h4>Price Range</h4>
+        <div class="filter-list">
+          <label class="filter-item"><input type="checkbox"> Under $5</label>
+          <label class="filter-item"><input type="checkbox"> $5 - $10</label>
+          <label class="filter-item"><input type="checkbox"> $10 - $20</label>
+          <label class="filter-item"><input type="checkbox"> Over $20</label>
+        </div>
+      </div>
+      
+      <div class="filter-group">
+        <h4>Dietary</h4>
+        <div class="filter-list">
+          <label class="filter-item"><input type="checkbox"> Organic</label>
+          <label class="filter-item"><input type="checkbox"> Gluten-Free</label>
+          <label class="filter-item"><input type="checkbox"> Vegan</label>
+        </div>
+      </div>
+    </aside>
+    
+    <div class="products-main">
+      <div class="products-header">
+        <h2>Fresh Products (124)</h2>
+        <button class="btn btn-secondary mobile-filter-btn">
+          <i data-lucide="sliders-horizontal"></i> Filters
+        </button>
+      </div>
+      
+      <div class="products-grid">
+        <!-- Item 1 -->
+        <a href="product-details.html" class="card product-card" style="view-transition-name: product-card-1">
+          <div class="product-badge badge badge-accent">15% OFF</div>
+          <div class="product-img skeleton" style="view-transition-name: product-img-1"></div>
+          <div class="product-info">
+            <span class="product-cat">Fruits</span>
+            <h3 class="product-title" style="view-transition-name: product-title-1">Fresh Organic Bananas</h3>
+            <div class="product-meta">
+              <span class="product-weight">1 kg</span>
+              <span class="product-rating"><i data-lucide="star"></i> 4.8</span>
+            </div>
+            <div class="product-bottom">
+              <div class="product-price">
+                <span class="price-current">$3.99</span>
+                <span class="price-old">$4.99</span>
+              </div>
+              <button class="btn btn-primary add-btn" onclick="event.preventDefault();">Add</button>
+            </div>
+          </div>
+        </a>
+        
+        <!-- Item 2 -->
+        <a href="product-details.html" class="card product-card">
+          <div class="product-img skeleton"></div>
+          <div class="product-info">
+            <span class="product-cat">Dairy</span>
+            <h3 class="product-title">Whole Milk 1 Gallon</h3>
+            <div class="product-meta">
+              <span class="product-weight">1 Gal</span>
+              <span class="product-rating"><i data-lucide="star"></i> 4.9</span>
+            </div>
+            <div class="product-bottom">
+              <div class="product-price">
+                <span class="price-current">$4.50</span>
+              </div>
+              <button class="btn btn-primary add-btn" onclick="event.preventDefault();">Add</button>
+            </div>
+          </div>
+        </a>
+        
+        <!-- Item 3 -->
+        <a href="product-details.html" class="card product-card">
+          <div class="product-badge badge badge-primary">ORGANIC</div>
+          <div class="product-img skeleton"></div>
+          <div class="product-info">
+            <span class="product-cat">Vegetables</span>
+            <h3 class="product-title">Avocado Hass</h3>
+            <div class="product-meta">
+              <span class="product-weight">2 pcs</span>
+              <span class="product-rating"><i data-lucide="star"></i> 4.9</span>
+            </div>
+            <div class="product-bottom">
+              <div class="product-price">
+                <span class="price-current">$2.50</span>
+              </div>
+              <button class="btn btn-primary add-btn" onclick="event.preventDefault();">Add</button>
+            </div>
+          </div>
+        </a>
+        
+        <!-- Item 4 -->
+        <a href="product-details.html" class="card product-card">
+          <div class="product-img skeleton"></div>
+          <div class="product-info">
+            <span class="product-cat">Bakery</span>
+            <h3 class="product-title">Sourdough Bread</h3>
+            <div class="product-meta">
+              <span class="product-weight">500g</span>
+              <span class="product-rating"><i data-lucide="star"></i> 4.7</span>
+            </div>
+            <div class="product-bottom">
+              <div class="product-price">
+                <span class="price-current">$5.00</span>
+              </div>
+              <button class="btn btn-primary add-btn" onclick="event.preventDefault();">Add</button>
+            </div>
+          </div>
+        </a>
+        
+        <!-- Item 5 -->
+        <a href="product-details.html" class="card product-card">
+          <div class="product-img skeleton"></div>
+          <div class="product-info">
+            <span class="product-cat">Snacks</span>
+            <h3 class="product-title">Potato Chips Salted</h3>
+            <div class="product-meta">
+              <span class="product-weight">150g</span>
+              <span class="product-rating"><i data-lucide="star"></i> 4.5</span>
+            </div>
+            <div class="product-bottom">
+              <div class="product-price">
+                <span class="price-current">$1.99</span>
+              </div>
+              <button class="btn btn-primary add-btn" onclick="event.preventDefault();">Add</button>
+            </div>
+          </div>
+        </a>
+        
+        <!-- Item 6 -->
+        <a href="product-details.html" class="card product-card">
+          <div class="product-img skeleton"></div>
+          <div class="product-info">
+            <span class="product-cat">Fruits</span>
+            <h3 class="product-title">Red Apples Premium</h3>
+            <div class="product-meta">
+              <span class="product-weight">1 kg</span>
+              <span class="product-rating"><i data-lucide="star"></i> 4.6</span>
+            </div>
+            <div class="product-bottom">
+              <div class="product-price">
+                <span class="price-current">$3.50</span>
+              </div>
+              <button class="btn btn-primary add-btn" onclick="event.preventDefault();">Add</button>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <!-- Mobile Bottom Nav -->
+  <div class="mobile-nav glass hidden-desktop">
+    <a href="index.html" class="mobile-nav-item">
+      <i data-lucide="home"></i>
+      <span>Home</span>
+    </a>
+    <a href="products.html" class="mobile-nav-item active">
+      <i data-lucide="grid"></i>
+      <span>Categories</span>
+    </a>
+    <a href="cart.html" class="mobile-nav-item relative">
+      <i data-lucide="shopping-bag"></i>
+      <span class="badge badge-primary mobile-badge">3</span>
+      <span>Cart</span>
+    </a>
+    <a href="profile.html" class="mobile-nav-item">
+      <i data-lucide="user"></i>
+      <span>Profile</span>
+    </a>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script>
+    lucide.createIcons();
+    
+    // Theme toggle
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Cart - GroceryApp</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/global.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/home.css">
+  <link rel="stylesheet" href="css/cart.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  
+  <nav class="navbar glass navbar-scrolled">
+    <div class="container navbar-content">
+      <a href="index.html" class="logo">
+        <i data-lucide="leaf"></i>
+        <span>GroceryApp</span>
+      </a>
+      
+      <div class="search-container hidden-mobile">
+        <div class="input-group">
+          <i data-lucide="search" class="input-icon"></i>
+          <input type="text" class="input-field" placeholder="Search for 'Avocado'">
+        </div>
+      </div>
+      
+      <div class="nav-actions">
+        <button class="btn-icon" aria-label="Dark Mode Toggle" id="theme-toggle">
+          <i data-lucide="moon"></i>
+        </button>
+        <a href="profile.html" class="btn-icon hidden-mobile" aria-label="Profile">
+          <i data-lucide="user"></i>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container cart-layout">
+    <div class="cart-main">
+      <div class="cart-header">
+        <h1>Your Cart</h1>
+        <span class="text-muted">3 items</span>
+      </div>
+      
+      <div class="cart-items">
+        <!-- Item 1 -->
+        <div class="cart-item">
+          <div class="cart-item-img skeleton"></div>
+          <div class="cart-item-details">
+            <div class="cart-item-header">
+              <h3 class="cart-item-title">Fresh Organic Bananas</h3>
+              <span class="cart-item-price">$3.99</span>
+            </div>
+            <div class="cart-item-meta">1 kg</div>
+            
+            <div class="cart-item-actions">
+              <div class="qty-selector" style="margin-bottom:0">
+                <button class="qty-btn"><i data-lucide="minus" style="width:14px"></i></button>
+                <input type="text" class="qty-input" value="1">
+                <button class="qty-btn"><i data-lucide="plus" style="width:14px"></i></button>
+              </div>
+              <button class="remove-btn"><i data-lucide="trash-2" style="width:14px"></i> Remove</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Item 2 -->
+        <div class="cart-item">
+          <div class="cart-item-img skeleton"></div>
+          <div class="cart-item-details">
+            <div class="cart-item-header">
+              <h3 class="cart-item-title">Whole Milk 1 Gallon</h3>
+              <span class="cart-item-price">$4.50</span>
+            </div>
+            <div class="cart-item-meta">1 Gal</div>
+            
+            <div class="cart-item-actions">
+              <div class="qty-selector" style="margin-bottom:0">
+                <button class="qty-btn"><i data-lucide="minus" style="width:14px"></i></button>
+                <input type="text" class="qty-input" value="1">
+                <button class="qty-btn"><i data-lucide="plus" style="width:14px"></i></button>
+              </div>
+              <button class="remove-btn"><i data-lucide="trash-2" style="width:14px"></i> Remove</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Item 3 -->
+        <div class="cart-item">
+          <div class="cart-item-img skeleton"></div>
+          <div class="cart-item-details">
+            <div class="cart-item-header">
+              <h3 class="cart-item-title">Avocado Hass</h3>
+              <span class="cart-item-price">$5.00</span>
+            </div>
+            <div class="cart-item-meta">2 pcs (x2)</div>
+            
+            <div class="cart-item-actions">
+              <div class="qty-selector" style="margin-bottom:0">
+                <button class="qty-btn"><i data-lucide="minus" style="width:14px"></i></button>
+                <input type="text" class="qty-input" value="2">
+                <button class="qty-btn"><i data-lucide="plus" style="width:14px"></i></button>
+              </div>
+              <button class="remove-btn"><i data-lucide="trash-2" style="width:14px"></i> Remove</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="cart-sidebar">
+      <div class="cart-summary">
+        <h2>Order Summary</h2>
+        
+        <div class="summary-row">
+          <span>Subtotal</span>
+          <span>$13.49</span>
+        </div>
+        <div class="summary-row">
+          <span>Delivery Fee</span>
+          <span>$1.99</span>
+        </div>
+        <div class="summary-row" style="color: var(--color-primary);">
+          <span>Discount (15% OFF)</span>
+          <span>-$0.60</span>
+        </div>
+        
+        <div class="summary-total">
+          <span>Total</span>
+          <span>$14.88</span>
+        </div>
+        
+        <button class="btn btn-primary checkout-btn">
+          Proceed to Checkout <i data-lucide="arrow-right"></i>
+        </button>
+        
+        <div class="promo-code">
+          <input type="text" class="input-field" placeholder="Promo code">
+          <button class="btn btn-secondary">Apply</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Mobile Bottom Nav -->
+  <div class="mobile-nav glass hidden-desktop">
+    <a href="index.html" class="mobile-nav-item">
+      <i data-lucide="home"></i>
+      <span>Home</span>
+    </a>
+    <a href="products.html" class="mobile-nav-item">
+      <i data-lucide="grid"></i>
+      <span>Categories</span>
+    </a>
+    <a href="cart.html" class="mobile-nav-item active relative">
+      <i data-lucide="shopping-bag"></i>
+      <span class="badge badge-primary mobile-badge">3</span>
+      <span>Cart</span>
+    </a>
+    <a href="profile.html" class="mobile-nav-item">
+      <i data-lucide="user"></i>
+      <span>Profile</span>
+    </a>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script>
+    lucide.createIcons();
+    
+    // Theme toggle
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    });
+  </script>
+</body>
+</html>

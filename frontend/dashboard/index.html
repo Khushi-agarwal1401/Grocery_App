@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grocery Admin Panel - Dashboard</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <!-- Custom Style Sheet -->
+    <link href="../assets/css/styles.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="app-wrapper">
+    <!-- Dynamically Injected Sidebar -->
+    <div id="sidebar-container"></div>
+    
+    <div class="main-content">
+        <!-- Dynamically Injected Navbar -->
+        <div id="navbar-container"></div>
+        
+        <main class="content-body">
+            <!-- 1. Statistics Cards -->
+            <div class="row g-4 mb-4">
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <div class="stat-card card-customer d-flex flex-column h-100">
+                        <div class="stat-icon-wrapper"><i class="bi bi-people-fill"></i></div>
+                        <div class="stat-value" id="statCustomers">0</div>
+                        <div class="stat-label">Total Customers</div>
+                    </div>
+                </div>
+                
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <div class="stat-card card-product d-flex flex-column h-100">
+                        <div class="stat-icon-wrapper"><i class="bi bi-box-seam-fill"></i></div>
+                        <div class="stat-value" id="statProducts">0</div>
+                        <div class="stat-label">Total Products</div>
+                    </div>
+                </div>
+                
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <div class="stat-card card-order d-flex flex-column h-100">
+                        <div class="stat-icon-wrapper"><i class="bi bi-receipt-cutoff"></i></div>
+                        <div class="stat-value" id="statOrders">0</div>
+                        <div class="stat-label">Total Orders</div>
+                    </div>
+                </div>
+                
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <div class="stat-card card-revenue d-flex flex-column h-100">
+                        <div class="stat-icon-wrapper"><i class="bi bi-currency-rupee"></i></div>
+                        <div class="stat-value" id="statRevenue">₹0.00</div>
+                        <div class="stat-label">Total Revenue</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Extra stats row -->
+            <div class="row g-4 mb-4">
+                <div class="col-12 col-md-4">
+                    <div class="stat-card card-category d-flex align-items-center justify-content-between py-3 h-100">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="stat-icon-wrapper mb-0"><i class="bi bi-tags-fill"></i></div>
+                            <div>
+                                <div class="stat-value fs-4 mb-0" id="statCategories">0</div>
+                                <div class="stat-label">Total Categories</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-12 col-md-4">
+                    <div class="stat-card card-supplier d-flex align-items-center justify-content-between py-3 h-100">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="stat-icon-wrapper mb-0"><i class="bi bi-truck-flatbed"></i></div>
+                            <div>
+                                <div class="stat-value fs-4 mb-0" id="statSuppliers">0</div>
+                                <div class="stat-label">Total Suppliers</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-12 col-md-4">
+                    <div class="stat-card card-agent d-flex align-items-center justify-content-between py-3 h-100">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="stat-icon-wrapper mb-0"><i class="bi bi-bicycle"></i></div>
+                            <div>
+                                <div class="stat-value fs-4 mb-0" id="statAgents">0</div>
+                                <div class="stat-label">Delivery Agents</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="row g-4 mb-4">
+                <div class="col-12 col-lg-8">
+                    <div class="custom-card h-100">
+                        <div class="card-header">
+                            <div class="card-title mb-0"><i class="bi bi-graph-up me-2 text-primary"></i>Revenue & Sales Trends</div>
+                        </div>
+                        <div class="card-body">
+                            <div style="height: 320px; position: relative;">
+                                <canvas id="revenueChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-12 col-lg-4">
+                    <div class="custom-card h-100">
+                        <div class="card-header">
+                            <div class="card-title mb-0"><i class="bi bi-pie-chart-fill me-2 text-warning"></i>Orders by Status</div>
+                        </div>
+                        <div class="card-body d-flex align-items-center justify-content-center">
+                            <div style="height: 280px; width: 100%; position: relative;">
+                                <canvas id="statusChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-12 col-lg-6">
+                    <div class="custom-card">
+                        <div class="card-header">
+                            <div class="card-title mb-0"><i class="bi bi-trophy-fill me-2 text-success"></i>Top Selling Products</div>
+                        </div>
+                        <div class="card-body">
+                            <div style="height: 280px; position: relative;">
+                                <canvas id="productsChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-12 col-lg-6">
+                    <div class="custom-card">
+                        <div class="card-header">
+                            <div class="card-title mb-0"><i class="bi bi-bar-chart-steps me-2 text-info"></i>Category-wise Revenue</div>
+                        </div>
+                        <div class="card-body">
+                            <div style="height: 280px; position: relative;">
+                                <canvas id="categoryChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- JS Libraries -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Global controls and session manager -->
+<script src="../assets/js/main.js"></script>
+<script src="../assets/js/layout.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    showLoader();
+    
+    // Fetch Dashboard Analytics & Card Counts from API
+    fetch('../../backend/api/dashboard_data.php')
+        .then(response => response.json())
+        .then(data => {
+            hideLoader();
+            if (!data.success) {
+                showToast(data.message || 'Error loading dashboard data', 'danger');
+                return;
+            }
+            
+            // Populate Card counts
+            document.getElementById('statCustomers').innerText = data.stats.total_customers;
+            document.getElementById('statProducts').innerText = data.stats.total_products;
+            document.getElementById('statOrders').innerText = data.stats.total_orders;
+            document.getElementById('statRevenue').innerText = '₹' + parseFloat(data.stats.total_revenue).toFixed(2);
+            document.getElementById('statCategories').innerText = data.stats.total_categories;
+            document.getElementById('statSuppliers').innerText = data.stats.total_suppliers;
+            document.getElementById('statAgents').innerText = data.stats.total_agents;
+            
+            // Chart.js styles config
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            const gridColor = isDark ? '#334155' : '#e2e8f0';
+            const textColor = isDark ? '#94a3b8' : '#64748b';
+            
+            Chart.defaults.color = textColor;
+            Chart.defaults.font.family = 'Outfit, sans-serif';
+            
+            // 1. Revenue Chart
+            new Chart(document.getElementById('revenueChart'), {
+                type: 'line',
+                data: {
+                    labels: data.months,
+                    datasets: [
+                        {
+                            label: 'Monthly Revenue (₹)',
+                            data: data.revenues,
+                            borderColor: '#818cf8',
+                            backgroundColor: 'rgba(129, 140, 248, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Number of Orders',
+                            data: data.order_counts,
+                            type: 'bar',
+                            backgroundColor: 'rgba(14, 165, 233, 0.25)',
+                            borderColor: '#0ea5e9',
+                            borderWidth: 1,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            grid: { color: gridColor },
+                            title: { display: true, text: 'Revenue (₹)' }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            grid: { drawOnChartArea: false },
+                            title: { display: true, text: 'Orders Count' }
+                        }
+                    }
+                }
+            });
+
+            // 2. Status Chart
+            new Chart(document.getElementById('statusChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: data.statuses,
+                    datasets: [{
+                        data: data.status_counts,
+                        backgroundColor: [
+                            'rgba(16, 185, 129, 0.8)',
+                            'rgba(245, 158, 11, 0.8)',
+                            'rgba(14, 165, 233, 0.8)',
+                            'rgba(239, 68, 68, 0.8)'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    },
+                    cutout: '65%'
+                }
+            });
+
+            // 3. Top Products Chart
+            new Chart(document.getElementById('productsChart'), {
+                type: 'bar',
+                data: {
+                    labels: data.top_products,
+                    datasets: [{
+                        label: 'Quantity Sold',
+                        data: data.top_qty,
+                        backgroundColor: '#10b981',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { color: gridColor } },
+                        y: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // 4. Category Sales Chart
+            new Chart(document.getElementById('categoryChart'), {
+                type: 'polarArea',
+                data: {
+                    labels: data.categories,
+                    datasets: [{
+                        data: data.category_sales,
+                        backgroundColor: [
+                            'rgba(79, 70, 229, 0.7)',
+                            'rgba(14, 165, 233, 0.7)',
+                            'rgba(16, 185, 129, 0.7)',
+                            'rgba(245, 158, 11, 0.7)',
+                            'rgba(168, 85, 247, 0.7)',
+                            'rgba(236, 72, 153, 0.7)'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right' }
+                    },
+                    scales: {
+                        r: { grid: { color: gridColor }, ticks: { display: false } }
+                    }
+                }
+            });
+
+        })
+        .catch(err => {
+            hideLoader();
+            showToast('Failed to load chart analytics.', 'danger');
+            console.error(err);
+        });
+});
+</script>
+
+</body>
+</html>

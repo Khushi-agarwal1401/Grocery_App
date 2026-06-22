@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grocery Admin - Sign In</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Global Style Sheet -->
+    <link href="/assets/css/styles.css" rel="stylesheet">
+    <link href="/assets/css/admin.css" rel="stylesheet">
+    <script>
+        // Inline theme check to prevent flash of light theme
+        const colorScheme = localStorage.getItem("color-scheme") || "light";
+        document.documentElement.setAttribute('data-theme', colorScheme);
+    </script>
+</head>
+<body class="admin-body d-flex align-items-center justify-content-center" style="background: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.05) 0%, rgba(0, 0, 0, 0) 90%);">
+
+<div class="container d-flex justify-content-center">
+    <div class="card glass-effect border-0 p-4 shadow-lg" style="width: 100%; max-width: 440px;">
+        <div class="text-center pb-4 mb-4 border-bottom border-secondary-subtle">
+            <h3 class="fw-800 text-primary mb-1"><i class="bi bi-cart4 me-2"></i>GROCERY ADMIN</h3>
+            <p class="text-secondary mb-0">Portal authentication panel</p>
+        </div>
+        
+        <form id="adminLoginForm" novalidate>
+            <div class="mb-3">
+                <label for="username" class="form-label fw-600 text-secondary">Username</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent border-end-0"><i class="bi bi-person text-secondary"></i></span>
+                    <input type="text" class="form-control border-start-0" id="username" name="username" placeholder="Enter admin username" required>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="password" class="form-label fw-600 text-secondary">Password</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent border-end-0"><i class="bi bi-lock text-secondary"></i></span>
+                    <input type="password" class="form-control border-start-0 border-end-0" id="password" name="password" placeholder="Enter password" required>
+                    <button class="btn btn-outline-secondary border-start-0" type="button" id="togglePassword">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="mb-4 d-flex justify-content-between align-items-center">
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="remember_me" name="remember_me">
+                    <label class="form-check-label text-secondary fw-500" for="remember_me">Remember me</label>
+                </div>
+                <button type="button" class="btn btn-link p-0 text-decoration-none text-primary fw-600" id="goToCustomer">Customer Login</button>
+            </div>
+            
+            <button type="submit" class="btn btn-primary w-100 py-2.5 fw-600 shadow-sm">Sign In to Admin</button>
+        </form>
+    </div>
+</div>
+
+<!-- JS Modules -->
+<script src="/assets/js/api.js"></script>
+<script src="/assets/js/auth.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Toggle Password visibility
+        const togglePassword = document.getElementById('togglePassword');
+        const password = document.getElementById('password');
+        if (togglePassword && password) {
+            togglePassword.addEventListener('click', function() {
+                const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+                password.setAttribute('type', type);
+                this.querySelector('i').classList.toggle('bi-eye');
+                this.querySelector('i').classList.toggle('bi-eye-slash');
+            });
+        }
+
+        // Handle Admin Login submission
+        const form = document.getElementById('adminLoginForm');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value.trim();
+            const passwordVal = password.value;
+            const rememberMe = document.getElementById('remember_me').checked;
+
+            if (!username || !passwordVal) {
+                window.API.showToast('Please fill in both fields.', 'warning');
+                return;
+            }
+
+            try {
+                await window.Auth.login(username, passwordVal, rememberMe, true);
+            } catch (err) {
+                // Toast notifications handled by Auth.login or API wrapper
+            }
+        });
+
+        // Toggle to Customer portal login
+        document.getElementById('goToCustomer').addEventListener('click', () => {
+            window.location.href = '/customer/login.html';
+        });
+    });
+</script>
+</body>
+</html>

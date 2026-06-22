@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grocery Admin Panel - Reports</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.bootstrap5.min.css" rel="stylesheet">
+    <!-- Custom Style Sheet -->
+    <link href="../assets/css/styles.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="app-wrapper">
+    <!-- Dynamically Injected Sidebar -->
+    <div id="sidebar-container"></div>
+    
+    <div class="main-content">
+        <!-- Dynamically Injected Navbar -->
+        <div id="navbar-container"></div>
+        
+        <main class="content-body">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="fw-700 text-primary mb-0"><i class="bi bi-graph-up-arrow me-2"></i>Reports & Exports</h3>
+            </div>
+
+            <!-- Filters Panel -->
+            <div class="custom-card mb-4">
+                <div class="card-body">
+                    <form id="reportFilterForm">
+                        <div class="row g-3 align-items-end">
+                            <!-- Report Type -->
+                            <div class="col-12 col-md-3">
+                                <label for="reportType" class="form-label fw-500 text-secondary">Report Type</label>
+                                <select id="reportType" class="form-select" required>
+                                    <option value="sales">Sales Report</option>
+                                    <option value="revenue">Revenue Report</option>
+                                    <option value="product">Product Report (Inventory & Sales)</option>
+                                    <option value="customer">Customer Report (Spent Analytics)</option>
+                                    <option value="supplier">Supplier Report (Performance)</option>
+                                    <option value="delivery">Delivery Report (Agent Efficiency)</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Start Date -->
+                            <div class="col-12 col-md-3 date-filter">
+                                <label for="startDate" class="form-label fw-500 text-secondary">Start Date</label>
+                                <input type="date" id="startDate" class="form-control">
+                            </div>
+                            
+                            <!-- End Date -->
+                            <div class="col-12 col-md-3 date-filter">
+                                <label for="endDate" class="form-label fw-500 text-secondary">End Date</label>
+                                <input type="date" id="endDate" class="form-control">
+                            </div>
+                            
+                            <!-- Generate Button -->
+                            <div class="col-12 col-md-3">
+                                <button type="submit" class="btn btn-primary w-100 py-2 fw-600">
+                                    <i class="bi bi-gear-wide-connected me-2"></i>Generate Report
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Report Table Container -->
+            <div class="custom-card">
+                <div class="card-header bg-light-subtle">
+                    <div class="fw-600 text-primary" id="reportTitle"><i class="bi bi-table me-2"></i>Report Table</div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="reportsDataTable" class="table table-hover table-striped w-100">
+                            <thead id="reportsTableHeader">
+                                <!-- Dynamic Headers -->
+                            </thead>
+                            <tbody id="reportsTableBody">
+                                <!-- Loaded dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- JS Libraries -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- DataTables Core & Extensions -->
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.bootstrap5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.print.min.js"></script>
+
+<!-- Global layout controllers -->
+<script src="../assets/js/main.js"></script>
+<script src="../assets/js/layout.js"></script>
+
+<script>
+let reportsDataTableInstance = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Set default dates: first day of month and today
+    const now = new Date();
+    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+    const today = now.toISOString().split('T')[0];
+    
+    document.getElementById('startDate').value = firstDay;
+    document.getElementById('endDate').value = today;
+
+    // Hide/show date filters if not needed
+    document.getElementById('reportType').addEventListener('change', function() {
+        const type = this.value;
+        const dateFilters = document.querySelectorAll('.date-filter');
+        if (type === 'sales' || type === 'revenue') {
+            dateFilters.forEach(f => f.style.opacity = '1');
+            document.getElementById('startDate').disabled = false;
+            document.getElementById('endDate').disabled = false;
+        } else {
+            dateFilters.forEach(f => f.style.opacity = '0.5');
+            document.getElementById('startDate').disabled = true;
+            document.getElementById('endDate').disabled = true;
+        }
+    });
+
+    // Form submit
+    document.getElementById('reportFilterForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        generateReport();
+    });
+    
+    // Auto generate sales report initially
+    generateReport();
+});
+
+function generateReport() {
+    const type = document.getElementById('reportType').value;
+    const start = document.getElementById('startDate').value;
+    const end = document.getElementById('endDate').value;
+    
+    // Define headers based on type
+    const headersMap = {
+        'sales': ['Order ID', 'Customer Name', 'Order Date', 'Total Amount', 'Status'],
+        'revenue': ['Payment ID', 'Order ID', 'Amount', 'Payment Mode', 'Payment Status', 'Payment Date'],
+        'product': ['Product ID', 'Product Name', 'Category', 'Supplier', 'Unit Price', 'Stock', 'Units Sold', 'Total Revenue'],
+        'customer': ['Customer ID', 'Customer Name', 'Email', 'Phone', 'Total Orders', 'Total Spent'],
+        'supplier': ['Supplier ID', 'Supplier Name', 'Contact No', 'Total Products', 'Units Sold', 'Total Revenue'],
+        'delivery': ['Agent ID', 'Agent Name', 'Phone', 'Assigned Orders', 'Completed Deliveries', 'Cancelled Deliveries', 'Success Rate']
+    };
+    
+    const titlesMap = {
+        'sales': 'Sales Order Report',
+        'revenue': 'Collected Revenue Transactions Report',
+        'product': 'Product Performance & Inventory Catalog',
+        'customer': 'Customer Valuation & Spent Analytics',
+        'supplier': 'Supplier Performance Scorecard',
+        'delivery': 'Delivery Agent Efficiency Report'
+    };
+    
+    document.getElementById('reportTitle').innerHTML = `<i class="bi bi-file-earmark-bar-graph me-2"></i>${titlesMap[type]}`;
+
+    showLoader();
+    fetch(`../../backend/api/reports_data.php?type=${type}&start_date=${start}&end_date=${end}`)
+        .then(res => res.json())
+        .then(res => {
+            hideLoader();
+            if (!res.success) {
+                showToast(res.message, 'danger');
+                return;
+            }
+            
+            // Destroy existing DataTable
+            if ($.fn.DataTable.isDataTable('#reportsDataTable')) {
+                $('#reportsDataTable').DataTable().destroy();
+            }
+            
+            // Build Headers
+            const thead = document.getElementById('reportsTableHeader');
+            thead.innerHTML = '';
+            const trHeader = document.createElement('tr');
+            headersMap[type].forEach(headerText => {
+                const th = document.createElement('th');
+                th.innerText = headerText;
+                trHeader.appendChild(th);
+            });
+            thead.appendChild(trHeader);
+            
+            // Build Body
+            const tbody = document.getElementById('reportsTableBody');
+            tbody.innerHTML = '';
+            
+            res.data.forEach(row => {
+                const tr = document.createElement('tr');
+                let colsHtml = '';
+                
+                if (type === 'sales') {
+                    let badgeClass = 'badge-pending';
+                    if (row.Status === 'Delivered') badgeClass = 'badge-delivered';
+                    if (row.Status === 'Shipped') badgeClass = 'badge-shipped';
+                    if (row.Status === 'Cancelled') badgeClass = 'badge-cancelled';
+                    
+                    colsHtml = `
+                        <td class="fw-600">#${row.Order_ID}</td>
+                        <td>${escapeHtml(row.Customer_Name)}</td>
+                        <td>${row.Order_Date}</td>
+                        <td class="fw-600">₹${parseFloat(row.Total_Amount).toFixed(2)}</td>
+                        <td><span class="badge-status ${badgeClass}">${row.Status}</span></td>
+                    `;
+                } 
+                else if (type === 'revenue') {
+                    let payBadge = 'badge bg-warning text-dark';
+                    if (row.Payment_Status === 'Success') payBadge = 'badge bg-success';
+                    if (row.Payment_Status === 'Failed') payBadge = 'badge bg-danger';
+                    
+                    colsHtml = `
+                        <td class="fw-600">#${row.Payment_ID}</td>
+                        <td>#${row.Order_ID}</td>
+                        <td class="fw-600">₹${parseFloat(row.Amount).toFixed(2)}</td>
+                        <td>${escapeHtml(row.Payment_Mode || 'None')}</td>
+                        <td><span class="${payBadge}">${row.Payment_Status}</span></td>
+                        <td>${row.Payment_Date || 'N/A'}</td>
+                    `;
+                }
+                else if (type === 'product') {
+                    colsHtml = `
+                        <td>${row.Product_ID}</td>
+                        <td class="fw-600">${escapeHtml(row.Product_Name)}</td>
+                        <td>${escapeHtml(row.Category_Name || 'N/A')}</td>
+                        <td>${escapeHtml(row.Supplier_Name || 'N/A')}</td>
+                        <td>₹${parseFloat(row.Price).toFixed(2)}</td>
+                        <td><span class="badge ${row.Stock <= 50 ? 'bg-danger' : 'bg-success'}">${row.Stock} items</span></td>
+                        <td class="fw-600">${row.Units_Sold} units</td>
+                        <td class="fw-600 text-primary">₹${parseFloat(row.Total_Revenue).toFixed(2)}</td>
+                    `;
+                }
+                else if (type === 'customer') {
+                    colsHtml = `
+                        <td>${row.Customer_ID}</td>
+                        <td class="fw-600">${escapeHtml(row.Name)}</td>
+                        <td>${escapeHtml(row.Email || 'N/A')}</td>
+                        <td>${escapeHtml(row.Phone)}</td>
+                        <td>${row.Total_Orders} orders</td>
+                        <td class="fw-600 text-primary">₹${parseFloat(row.Total_Spend).toFixed(2)}</td>
+                    `;
+                }
+                else if (type === 'supplier') {
+                    colsHtml = `
+                        <td>${row.Supplier_ID}</td>
+                        <td class="fw-600">${escapeHtml(row.Name)}</td>
+                        <td>${escapeHtml(row.Contact_No)}</td>
+                        <td>${row.Total_Products} products</td>
+                        <td>${row.Units_Sold} units</td>
+                        <td class="fw-600 text-primary">₹${parseFloat(row.Total_Revenue).toFixed(2)}</td>
+                    `;
+                }
+                else if (type === 'delivery') {
+                    const success = (row.Assigned_Orders > 0) ? round((row.Completed / row.Assigned_Orders) * 100, 1) : 100;
+                    colsHtml = `
+                        <td>${row.Agent_ID}</td>
+                        <td class="fw-600">${escapeHtml(row.Name)}</td>
+                        <td>${escapeHtml(row.Phone)}</td>
+                        <td>${row.Assigned_Orders} assignments</td>
+                        <td>${row.Completed} deliveries</td>
+                        <td>${row.Cancelled} failed</td>
+                        <td class="fw-600">${success}%</td>
+                    `;
+                }
+                
+                tr.innerHTML = colsHtml;
+                tbody.appendChild(tr);
+            });
+            
+            // Re-initialize DataTable with CSV, Excel, PDF and Print options
+            reportsDataTableInstance = $('#reportsDataTable').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    { extend: 'csv', className: 'btn btn-sm btn-outline-primary', title: titlesMap[type] },
+                    { extend: 'excel', className: 'btn btn-sm btn-outline-primary', title: titlesMap[type] },
+                    { extend: 'pdf', className: 'btn btn-sm btn-outline-primary', title: titlesMap[type] },
+                    { extend: 'print', className: 'btn btn-sm btn-outline-primary', title: titlesMap[type] }
+                ],
+                pageLength: 15,
+                responsive: true
+            });
+        })
+        .catch(err => {
+            hideLoader();
+            showToast('Error generating report', 'danger');
+            console.error(err);
+        });
+}
+
+function round(value, decimals) {
+    return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+    return text.toString().replace(/[&<>"']/g, m => map[m]);
+}
+</script>
+
+</body>
+</html>

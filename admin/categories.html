@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grocery Admin - Categories</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <!-- Global Stylesheets -->
+    <link href="/assets/css/styles.css" rel="stylesheet">
+    <link href="/assets/css/admin.css" rel="stylesheet">
+    <script>
+        const colorScheme = localStorage.getItem("color-scheme") || "light";
+        document.documentElement.setAttribute('data-theme', colorScheme);
+    </script>
+</head>
+<body class="admin-body">
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <a href="/admin/index.html" class="sidebar-brand">
+            <i class="bi bi-cart4"></i>
+            <span>GROCERY ADMIN</span>
+        </a>
+        <ul class="sidebar-menu">
+            <li class="sidebar-item">
+                <a href="/admin/index.html" class="sidebar-link">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="sidebar-item active">
+                <a href="/admin/categories.html" class="sidebar-link">
+                    <i class="bi bi-tags"></i>
+                    <span>Categories</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="/admin/suppliers.html" class="sidebar-link">
+                    <i class="bi bi-truck"></i>
+                    <span>Suppliers</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="/admin/customers.html" class="sidebar-link">
+                    <i class="bi bi-people"></i>
+                    <span>Customers</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="/admin/products.html" class="sidebar-link">
+                    <i class="bi bi-box-seam"></i>
+                    <span>Products</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="/admin/orders.html" class="sidebar-link">
+                    <i class="bi bi-receipt"></i>
+                    <span>Orders</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="/admin/payments.html" class="sidebar-link">
+                    <i class="bi bi-credit-card"></i>
+                    <span>Payments</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="/admin/delivery_agents.html" class="sidebar-link">
+                    <i class="bi bi-bicycle"></i>
+                    <span>Delivery Agents</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="/admin/reports.html" class="sidebar-link">
+                    <i class="bi bi-graph-up-arrow"></i>
+                    <span>Reports</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Main Content Wrapper -->
+    <div class="admin-wrapper">
+        <!-- Top Navbar -->
+        <header class="top-navbar glass-effect">
+            <div class="d-flex align-items-center">
+                <button id="sidebar-toggler" class="btn border-0 sidebar-toggler px-2 text-primary" type="button">
+                    <i class="bi bi-list fs-3"></i>
+                </button>
+                <h4 class="mb-0 fw-700 text-primary">Category Management</h4>
+            </div>
+            <div class="d-flex align-items-center gap-3 ms-auto">
+                <button id="theme-toggle" class="navbar-action-btn" title="Toggle Theme" type="button">
+                    <i class="bi bi-moon-fill"></i>
+                </button>
+                <div class="dropdown">
+                    <button class="btn border-0 d-flex align-items-center gap-2 p-1" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-600" style="width: 36px; height: 36px;">
+                            A
+                        </div>
+                        <span class="d-none d-md-inline fw-600 text-secondary" id="userDropdownName">Admin</span>
+                        <i class="bi bi-chevron-down text-secondary fs-8"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="profileDropdown">
+                        <li><a class="dropdown-item py-2" href="#" id="adminSignOutBtn"><i class="bi bi-box-arrow-right me-2 text-danger"></i> Sign Out</a></li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+
+        <main class="container-fluid p-4">
+            <!-- Table Card -->
+            <div class="card glass-effect border-0 admin-table-card">
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+                    <h5 class="fw-800 mb-0 text-secondary">Categories Inventory</h5>
+                    <button type="button" class="btn btn-primary d-flex align-items-center gap-2" id="addNewBtn">
+                        <i class="bi bi-plus-lg"></i>
+                        <span>Add Category</span>
+                    </button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle" id="categoriesTable" style="width:100%;">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Icon</th>
+                                <th>Category Name</th>
+                                <th>Description</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="categoriesTableBody">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Category Form Modal -->
+    <div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content glass-effect border-0 shadow">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-800 text-primary" id="categoryModalLabel">Add New Category</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="categoryForm">
+                    <div class="modal-body py-3">
+                        <input type="hidden" id="Category_ID" name="Category_ID" value="0">
+                        
+                        <div class="mb-3">
+                            <label for="Category_Name" class="form-label fw-600">Category Name</label>
+                            <input type="text" class="form-control" id="Category_Name" name="Category_Name" placeholder="Enter category name" required>
+                        </div>
+
+                        <div class="mb-2">
+                            <label for="Description" class="form-label fw-600">Description</label>
+                            <textarea class="form-control" id="Description" name="Description" rows="3" placeholder="Enter category description"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 pt-0">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="saveCategoryBtn">Save Category</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/auth.js"></script>
+    <script src="/assets/js/products.js"></script>
+    
+    <script>
+        let datatableInstance = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await refreshCategoriesTable();
+
+            // Bind triggers
+            document.getElementById('addNewBtn').addEventListener('click', () => {
+                showCategoryModal();
+            });
+
+            document.getElementById('categoryForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                await saveCategory();
+            });
+
+            // Mobile sidebar toggler
+            const sidebarToggler = document.getElementById('sidebar-toggler');
+            const sidebar = document.querySelector('.sidebar');
+            if (sidebarToggler && sidebar) {
+                sidebarToggler.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    sidebar.classList.toggle('show');
+                });
+            }
+
+            // Theme toggler
+            document.getElementById('theme-toggle').addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('color-scheme', newTheme);
+            });
+
+            // Sign out
+            document.getElementById('adminSignOutBtn').addEventListener('click', (e) => {
+                e.preventDefault();
+                window.Auth.logout(true);
+            });
+        });
+
+        async function refreshCategoriesTable() {
+            try {
+                const categories = await window.Products.fetchCategories();
+                const tbody = document.getElementById('categoriesTableBody');
+                
+                // Clear datatable
+                if (datatableInstance) {
+                    datatableInstance.destroy();
+                }
+                
+                tbody.innerHTML = '';
+                
+                categories.forEach(c => {
+                    const iconClass = window.Products.getCategoryIcon(c.Category_Name);
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><strong>#${c.Category_ID}</strong></td>
+                            <td>
+                                <div class="bg-tertiary text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 42px; height: 42px; font-size: 1.25rem;">
+                                    <i class="bi ${iconClass}"></i>
+                                </div>
+                            </td>
+                            <td><span class="fw-700">${c.Category_Name}</span></td>
+                            <td><span class="text-secondary">${c.Description || 'No description provided'}</span></td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-sm btn-outline-primary py-1 px-2.5" onclick="editCategory(${c.Category_ID})">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger py-1 px-2.5" onclick="deleteCategory(${c.Category_ID})">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                // Initialize DataTable
+                datatableInstance = $('#categoriesTable').DataTable({
+                    order: [[0, 'asc']],
+                    pageLength: 10,
+                    language: {
+                        search: "_INPUT_",
+                        searchPlaceholder: "Search categories..."
+                    }
+                });
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function showCategoryModal(id = 0, name = '', desc = '') {
+            document.getElementById('Category_ID').value = id;
+            document.getElementById('Category_Name').value = name;
+            document.getElementById('Description').value = desc;
+            
+            document.getElementById('categoryModalLabel').textContent = id > 0 ? 'Edit Category' : 'Add New Category';
+            
+            const modal = new bootstrap.Modal(document.getElementById('categoryModal'));
+            modal.show();
+        }
+
+        async function editCategory(id) {
+            try {
+                const res = await window.API.get('crud_handlers.php', { module: 'categories', action: 'get', id: id });
+                if (res.success && res.data) {
+                    showCategoryModal(res.data.Category_ID, res.data.Category_Name, res.data.Description);
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function saveCategory() {
+            const form = document.getElementById('categoryForm');
+            const formData = new FormData(form);
+            
+            try {
+                const res = await window.API.post('crud_handlers.php?module=categories&action=save', formData);
+                if (res.success) {
+                    window.API.showToast(res.message, 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('categoryModal')).hide();
+                    
+                    // Clear product.js categories cache to reload
+                    window.Products._categoriesCached = null;
+                    await refreshCategoriesTable();
+                } else {
+                    window.API.showToast(res.message || 'Failed to save category', 'danger');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function deleteCategory(id) {
+            if (confirm(`Are you sure you want to delete Category #${id}?`)) {
+                try {
+                    const formData = new FormData();
+                    formData.append('id', id);
+                    const res = await window.API.post('crud_handlers.php?module=categories&action=delete', formData);
+                    if (res.success) {
+                        window.API.showToast(res.message, 'success');
+                        
+                        // Clear cache
+                        window.Products._categoriesCached = null;
+                        await refreshCategoriesTable();
+                    } else {
+                        window.API.showToast(res.message || 'Failed to delete category', 'danger');
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
