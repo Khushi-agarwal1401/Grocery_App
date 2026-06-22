@@ -9,12 +9,12 @@
         async checkSession() {
             const currentPath = window.location.pathname;
             const isLoginPage = currentPath.includes('/login.html');
-            const isAdminPath = currentPath.includes('/admin/');
             
             try {
-                // Fetch current status
-                const res = await fetch('/backend/api/auth_status.php');
-                const data = await res.json();
+                // Fetch current status using the interceptable API helper if available
+                const data = window.API ? 
+                    await window.API.get('auth_status.php') : 
+                    await fetch('/backend/api/auth_status.php').then(r => r.json());
                 
                 if (data.success) {
                     window.csrfToken = data.csrf_token;
@@ -22,12 +22,12 @@
                     if (isLoginPage) {
                         if (data.authenticated) {
                             // Redirect to home/dashboard if already logged in
-                            window.location.href = isAdminPath ? '/admin/index.html' : '/customer/index.html';
+                            window.location.href = './index.html';
                         }
                     } else {
                         if (!data.authenticated) {
                             // Redirect to login page if unauthenticated
-                            window.location.href = isAdminPath ? '/admin/login.html' : '/customer/login.html';
+                            window.location.href = './login.html';
                         } else {
                             // Set header dropdown name and trigger load
                             const userDropdownName = document.getElementById('userDropdownName');
@@ -40,7 +40,7 @@
             } catch (error) {
                 console.error('Session check failed:', error);
                 if (!isLoginPage) {
-                    window.location.href = isAdminPath ? '/admin/login.html' : '/customer/login.html';
+                    window.location.href = './login.html';
                 }
             }
         },
@@ -58,19 +58,22 @@
             }
 
             try {
-                const response = await fetch('/backend/api/login_handler.php', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': window.csrfToken
-                    }
-                });
+                const data = window.API ? 
+                    await window.API.post('login_handler.php', formData) :
+                    await fetch('/backend/api/login_handler.php', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRF-TOKEN': window.csrfToken
+                        }
+                    }).then(r => r.json());
                 
-                const data = await response.json();
                 if (data.success) {
-                    window.location.href = isAdmin ? '/admin/index.html' : '/customer/index.html';
+                    window.location.href = './index.html';
                 } else {
-                    window.API.showToast(data.message || 'Login failed', 'danger');
+                    if (window.API) {
+                        window.API.showToast(data.message || 'Login failed', 'danger');
+                    }
                     throw new Error(data.message);
                 }
             } catch (error) {
@@ -84,15 +87,19 @@
          */
         async logout(isAdmin = false) {
             try {
-                const response = await fetch('/backend/api/logout_handler.php');
-                const data = await response.json();
+                const data = window.API ?
+                    await window.API.get('logout_handler.php') :
+                    await fetch('/backend/api/logout_handler.php').then(r => r.json());
+                
                 if (data.success) {
-                    window.location.href = isAdmin ? '/admin/login.html' : '/customer/login.html';
+                    window.location.href = './login.html';
                 }
             } catch (error) {
                 console.error('Logout failed:', error);
-                window.API.showToast('Logout failed. Directing to login.', 'warning');
-                window.location.href = isAdmin ? '/admin/login.html' : '/customer/login.html';
+                if (window.API) {
+                    window.API.showToast('Logout failed. Directing to login.', 'warning');
+                }
+                window.location.href = './login.html';
             }
         }
     };

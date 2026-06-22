@@ -131,7 +131,13 @@
                 session = { role: 'customer', user_id: 1, username: 'user', name: 'Aarav Sharma' };
                 localStorage.setItem('customer_session', JSON.stringify(session));
             }
-            return { success: true, session: session, csrf_token: 'mock-csrf-token' };
+            return { 
+                success: true, 
+                authenticated: !!session, 
+                username: session ? session.name : null, 
+                session: session, 
+                csrf_token: 'mock-csrf-token' 
+            };
         }
 
         if (endpointClean === 'crud_handlers.php') {
@@ -558,9 +564,7 @@
      */
     async function handleResponse(response) {
         if (response.status === 401) {
-            const currentPath = window.location.pathname;
-            const targetDir = currentPath.includes('/admin/') ? '/admin/login.html' : '/customer/login.html';
-            window.location.href = targetDir;
+            window.location.href = './login.html';
             throw new Error('Unauthorized');
         }
 
