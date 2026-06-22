@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grocery Admin Panel - Payments</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.bootstrap5.min.css" rel="stylesheet">
+    <!-- Custom Style Sheet -->
+    <link href="../assets/css/styles.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="app-wrapper">
+    <!-- Dynamically Injected Sidebar -->
+    <div id="sidebar-container"></div>
+    
+    <div class="main-content">
+        <!-- Dynamically Injected Navbar -->
+        <div id="navbar-container"></div>
+        
+        <main class="content-body">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="fw-700 text-primary mb-0"><i class="bi bi-credit-card me-2"></i>Payment Management</h3>
+            </div>
+
+            <!-- Payments Analytics Row -->
+            <div class="row g-4 mb-4">
+                <div class="col-12 col-md-4">
+                    <div class="stat-card card-revenue py-3">
+                        <div class="stat-value fs-4" id="statCollectedRevenue">₹0.00</div>
+                        <div class="stat-label">Total Collected Revenue</div>
+                    </div>
+                </div>
+                
+                <div class="col-12 col-md-4">
+                    <div class="stat-card card-order py-3">
+                        <div class="stat-value fs-4" id="statPendingPayments">0 transactions</div>
+                        <div class="stat-label">Pending Payments</div>
+                    </div>
+                </div>
+                
+                <div class="col-12 col-md-4">
+                    <div class="stat-card card-customer py-3" style="--card-border-color: var(--danger); --card-bg-light: rgba(239, 68, 68, 0.1);">
+                        <div class="stat-value fs-4" id="statFailedPayments">0 transactions</div>
+                        <div class="stat-label">Failed / Refunded Payments</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payments List Table -->
+            <div class="custom-card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="paymentsTable" class="table table-hover table-striped w-100">
+                            <thead>
+                                <tr>
+                                    <th>Payment ID</th>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                    <th>Payment Mode</th>
+                                    <th>Payment Status</th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="paymentsTableBody">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Edit Payment Modal -->
+<div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-600" id="paymentModalLabel">Update Payment Record</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="paymentForm">
+                <input type="hidden" name="csrf_token" id="formCsrfToken" value="">
+                <input type="hidden" name="Payment_ID" id="paymentId" value="">
+                
+                <div class="modal-body">
+                    <div class="row g-3 mb-3">
+                        <div class="col-6">
+                            <label class="form-label text-secondary fw-500">Order ID</label>
+                            <input type="text" class="form-control-plaintext fw-600" id="paymentOrderId" readonly>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label text-secondary fw-500">Amount (₹)</label>
+                            <input type="text" class="form-control-plaintext fw-600 text-primary" id="paymentAmount" readonly>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="paymentMode" class="form-label fw-500">Payment Mode</label>
+                        <select class="form-select" id="paymentMode" name="Payment_Mode" required>
+                            <option value="UPI">UPI</option>
+                            <option value="Credit Card">Credit Card</option>
+                            <option value="Debit Card">Debit Card</option>
+                            <option value="Net Banking">Net Banking</option>
+                            <option value="Cash on Delivery">Cash on Delivery</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="paymentStatus" class="form-label fw-500">Payment Status</label>
+                        <select class="form-select" id="paymentStatus" name="Payment_Status" required>
+                            <option value="Pending">Pending</option>
+                            <option value="Success">Success</option>
+                            <option value="Failed">Failed</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="modal-footer border-top-0">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- JS Libraries -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- DataTables Core & Extensions -->
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.bootstrap5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.print.min.js"></script>
+
+<!-- Global layout controllers -->
+<script src="../assets/js/main.js"></script>
+<script src="../assets/js/layout.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    loadPayments();
+    
+    // Assign CSRF token
+    setTimeout(() => {
+        document.getElementById('formCsrfToken').value = window.csrfToken;
+    }, 500);
+
+    document.getElementById('paymentForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        savePayment();
+    });
+});
+
+function loadPayments() {
+    showLoader();
+    fetch('../../backend/api/crud_handlers.php?module=payments&action=list')
+        .then(res => res.json())
+        .then(res => {
+            hideLoader();
+            if (!res.success) {
+                showToast(res.message, 'danger');
+                return;
+            }
+            
+            if ($.fn.DataTable.isDataTable('#paymentsTable')) {
+                $('#paymentsTable').DataTable().destroy();
+            }
+            
+            const tbody = document.getElementById('paymentsTableBody');
+            tbody.innerHTML = '';
+            
+            let collectedRevenue = 0.00;
+            let pendingCount = 0;
+            let failedCount = 0;
+
+            res.data.forEach(p => {
+                const amt = parseFloat(p.Amount) || 0;
+                if (p.Payment_Status === 'Success') {
+                    collectedRevenue += amt;
+                } else if (p.Payment_Status === 'Pending') {
+                    pendingCount++;
+                } else if (p.Payment_Status === 'Failed') {
+                    failedCount++;
+                }
+
+                let badgeClass = 'badge bg-warning text-dark';
+                if (p.Payment_Status === 'Success') badgeClass = 'badge bg-success';
+                if (p.Payment_Status === 'Failed') badgeClass = 'badge bg-danger';
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="fw-600">#${p.Payment_ID}</td>
+                    <td>#${p.Order_ID}</td>
+                    <td>${escapeHtml(p.Customer_Name)}</td>
+                    <td>${p.Payment_Date || p.Order_Date}</td>
+                    <td class="fw-600">₹${amt.toFixed(2)}</td>
+                    <td>${escapeHtml(p.Payment_Mode || 'None')}</td>
+                    <td>
+                        <span class="${badgeClass}">${p.Payment_Status}</span>
+                    </td>
+                    <td class="text-center">
+                        <button class="btn btn-sm btn-outline-info rounded" onclick="openEditModal(${p.Payment_ID}, ${p.Order_ID}, ${p.Amount}, '${escapeJs(p.Payment_Mode)}', '${escapeJs(p.Payment_Status)}')" title="Update Payment Status">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            // Set Stat Values
+            document.getElementById('statCollectedRevenue').innerText = '₹' + collectedRevenue.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('statPendingPayments').innerText = pendingCount + ' transaction' + (pendingCount === 1 ? '' : 's');
+            document.getElementById('statFailedPayments').innerText = failedCount + ' transaction' + (failedCount === 1 ? '' : 's');
+
+            $('#paymentsTable').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    { extend: 'csv', className: 'btn btn-sm btn-outline-primary' },
+                    { extend: 'excel', className: 'btn btn-sm btn-outline-primary' },
+                    { extend: 'pdf', className: 'btn btn-sm btn-outline-primary' },
+                    { extend: 'print', className: 'btn btn-sm btn-outline-primary' }
+                ],
+                order: [[0, 'desc']],
+                pageLength: 10,
+                responsive: true
+            });
+        })
+        .catch(err => {
+            hideLoader();
+            showToast('Error loading payments', 'danger');
+            console.error(err);
+        });
+}
+
+function openEditModal(id, orderId, amount, mode, status) {
+    document.getElementById('paymentId').value = id;
+    document.getElementById('paymentOrderId').value = '#' + orderId;
+    document.getElementById('paymentAmount').value = '₹' + parseFloat(amount).toFixed(2);
+    document.getElementById('paymentMode').value = mode || 'UPI';
+    document.getElementById('paymentStatus').value = status || 'Pending';
+    
+    const modal = new bootstrap.Modal(document.getElementById('paymentModal'));
+    modal.show();
+}
+
+function savePayment() {
+    const form = document.getElementById('paymentForm');
+    const formData = new FormData(form);
+    
+    showLoader();
+    fetch('../../backend/api/crud_handlers.php?module=payments&action=save', {
+        method: 'POST',
+        body: formData
+    })
+    .then(res => res.json())
+    .then(res => {
+        hideLoader();
+        if (res.success) {
+            showToast(res.message, 'success');
+            bootstrap.Modal.getInstance(document.getElementById('paymentModal')).hide();
+            loadPayments();
+        } else {
+            showToast(res.message, 'danger');
+        }
+    })
+    .catch(err => {
+        hideLoader();
+        showToast('Error saving payment status', 'danger');
+        console.error(err);
+    });
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+    return text.toString().replace(/[&<>"']/g, m => map[m]);
+}
+
+function escapeJs(text) {
+    if (!text) return '';
+    return text.replace(/'/g, "\\'").replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\r/g, '\\r');
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grocery Admin Panel - Create Order</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Custom Style Sheet -->
+    <link href="../assets/css/styles.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="app-wrapper">
+    <!-- Dynamically Injected Sidebar -->
+    <div id="sidebar-container"></div>
+    
+    <div class="main-content">
+        <!-- Dynamically Injected Navbar -->
+        <div id="navbar-container"></div>
+        
+        <main class="content-body">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="fw-700 text-primary mb-0"><i class="bi bi-cart-plus me-2"></i>Create New Order</h3>
+                <a href="index.html" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-2"></i>Back to Orders
+                </a>
+            </div>
+
+            <form id="orderWizardForm">
+                <input type="hidden" name="csrf_token" id="formCsrfToken" value="">
+                <input type="hidden" name="Status" value="Pending">
+
+                <div class="row g-4">
+                    <!-- Order Details Panel -->
+                    <div class="col-12 col-lg-4">
+                        <div class="custom-card h-100">
+                            <div class="card-header bg-light-subtle">
+                                <div class="fw-600"><i class="bi bi-info-circle me-2"></i>Order Metadata</div>
+                            </div>
+                            <div class="card-body">
+                                <!-- Customer selection -->
+                                <div class="mb-3">
+                                    <label for="customerId" class="form-label fw-500">Customer <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="customerId" name="Customer_ID" required>
+                                        <option value="">Select Customer...</option>
+                                        <!-- Loaded dynamically -->
+                                    </select>
+                                </div>
+                                
+                                <!-- Agent selection -->
+                                <div class="mb-3">
+                                    <label for="agentId" class="form-label fw-500">Delivery Agent</label>
+                                    <select class="form-select" id="agentId" name="Agent_ID">
+                                        <option value="">Unassigned</option>
+                                        <!-- Loaded dynamically -->
+                                    </select>
+                                </div>
+                                
+                                <!-- Date selection -->
+                                <div class="mb-3">
+                                    <label for="orderDate" class="form-label fw-500">Order Date</label>
+                                    <input type="date" class="form-control" id="orderDate" name="Order_Date" required>
+                                </div>
+                                
+                                <h6 class="fw-700 text-primary border-top pt-3 mt-3 mb-3">Payment Info</h6>
+                                
+                                <!-- Payment Mode -->
+                                <div class="mb-3">
+                                    <label for="payMode" class="form-label fw-500">Payment Mode</label>
+                                    <select class="form-select" id="payMode" name="Payment_Mode" required>
+                                        <option value="UPI">UPI</option>
+                                        <option value="Credit Card">Credit Card</option>
+                                        <option value="Debit Card">Debit Card</option>
+                                        <option value="Net Banking">Net Banking</option>
+                                        <option value="Cash on Delivery">Cash on Delivery</option>
+                                    </select>
+                                </div>
+                                
+                                <!-- Payment Status -->
+                                <div class="mb-3">
+                                    <label for="payStatus" class="form-label fw-500">Payment Status</label>
+                                    <select class="form-select" id="payStatus" name="Payment_Status" required>
+                                        <option value="Pending">Pending</option>
+                                        <option value="Success">Success</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Order Items Panel -->
+                    <div class="col-12 col-lg-8">
+                        <div class="custom-card h-100 d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="card-header bg-light-subtle d-flex justify-content-between align-items-center">
+                                    <div class="fw-600"><i class="bi bi-box me-2"></i>Order Items</div>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="addItemRow()">
+                                        <i class="bi bi-plus-circle me-1"></i>Add Item
+                                    </button>
+                                </div>
+                                
+                                <div class="card-body p-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped align-middle mb-0" id="itemsTable">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th style="width: 45%;">Product</th>
+                                                    <th style="width: 15%;">Unit Price</th>
+                                                    <th style="width: 15%;">Qty</th>
+                                                    <th style="width: 15%; text-align: right;">Subtotal</th>
+                                                    <th style="width: 10%; text-align: center;">Remove</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="itemsTableBody">
+                                                <!-- Dynamic Rows -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="p-3 border-top bg-light-subtle">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div class="fw-600 text-secondary">Calculated Total:</div>
+                                    <div class="fw-800 text-primary fs-3" id="grandTotalDisplay">₹0.00</div>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100 py-2.5 fw-600 fs-5">
+                                    <i class="bi bi-check2-circle me-2"></i>Submit & Place Order
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </main>
+    </div>
+</div>
+
+<!-- JS Libraries -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Global layout controllers -->
+<script src="../assets/js/main.js"></script>
+<script src="../assets/js/layout.js"></script>
+
+<script>
+let availableProducts = [];
+let rowCounter = 0;
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Set default order date to today
+    document.getElementById('orderDate').value = new Date().toISOString().split('T')[0];
+
+    // Load dynamic dropdown values
+    loadCustomers();
+    loadDeliveryAgents();
+    loadProductsAndInit();
+
+    // Assign CSRF token
+    setTimeout(() => {
+        document.getElementById('formCsrfToken').value = window.csrfToken;
+    }, 500);
+    
+    // Form submission
+    document.getElementById('orderWizardForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        submitOrder();
+    });
+
+    // Auto toggle payment status to success on online options
+    document.getElementById('payMode').addEventListener('change', function() {
+        const payStatus = document.getElementById('payStatus');
+        if (this.value === 'Cash on Delivery') {
+            payStatus.value = 'Pending';
+        } else {
+            payStatus.value = 'Success';
+        }
+    });
+});
+
+function loadCustomers() {
+    fetch('../../backend/api/crud_handlers.php?module=customers&action=list')
+        .then(res => res.json())
+        .then(res => {
+            if (res.success) {
+                const select = document.getElementById('customerId');
+                res.data.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.Customer_ID;
+                    opt.textContent = c.Name;
+                    select.appendChild(opt);
+                });
+            }
+        })
+        .catch(err => console.error('Error fetching customers:', err));
+}
+
+function loadDeliveryAgents() {
+    fetch('../../backend/api/crud_handlers.php?module=delivery_agents&action=list')
+        .then(res => res.json())
+        .then(res => {
+            if (res.success) {
+                const select = document.getElementById('agentId');
+                res.data.forEach(a => {
+                    const opt = document.createElement('option');
+                    opt.value = a.Agent_ID;
+                    opt.textContent = a.Name;
+                    select.appendChild(opt);
+                });
+            }
+        })
+        .catch(err => console.error('Error fetching agents:', err));
+}
+
+function loadProductsAndInit() {
+    showLoader();
+    fetch('../../backend/api/order_actions.php?action=fetch_products')
+        .then(res => res.json())
+        .then(res => {
+            hideLoader();
+            if (res.success) {
+                availableProducts = res.data;
+                // Add initial product row
+                addItemRow();
+            } else {
+                showToast(res.message, 'danger');
+            }
+        })
+        .catch(err => {
+            hideLoader();
+            console.error('Error fetching products:', err);
+        });
+}
+
+function addItemRow() {
+    rowCounter++;
+    const tbody = document.getElementById('itemsTableBody');
+    const tr = document.createElement('tr');
+    tr.id = `item-row-${rowCounter}`;
+    
+    let productOptionsHtml = '<option value="">Select Product...</option>';
+    availableProducts.forEach(p => {
+        productOptionsHtml += `<option value="${p.Product_ID}" data-price="${p.Price}" data-stock="${p.Stock}">${escapeHtml(p.Product_Name)} (Stock: ${p.Stock})</option>`;
+    });
+    
+    tr.innerHTML = `
+        <td>
+            <select class="form-select product-select" name="items[${rowCounter}][Product_ID]" required onchange="handleProductChange(${rowCounter})">
+                ${productOptionsHtml}
+            </select>
+        </td>
+        <td>
+            <input type="text" class="form-control-plaintext unit-price-display fw-500" readonly value="₹0.00">
+        </td>
+        <td>
+            <input type="number" class="form-control qty-input" name="items[${rowCounter}][Quantity]" min="1" value="1" required oninput="handleQuantityInput(${rowCounter})">
+        </td>
+        <td class="text-end fw-600 subtotal-display">
+            ₹0.00
+        </td>
+        <td class="text-center">
+            <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeItemRow(${rowCounter})">
+                <i class="bi bi-trash"></i>
+            </button>
+        </td>
+    `;
+    
+    tbody.appendChild(tr);
+}
+
+function removeItemRow(rowId) {
+    const row = document.getElementById(`item-row-${rowId}`);
+    if (row) {
+        row.remove();
+        recalculateTotals();
+    }
+}
+
+function handleProductChange(rowId) {
+    const row = document.getElementById(`item-row-${rowId}`);
+    const select = row.querySelector('.product-select');
+    const selectedOption = select.options[select.selectedIndex];
+    
+    const priceDisplay = row.querySelector('.unit-price-display');
+    const qtyInput = row.querySelector('.qty-input');
+    const subtotalDisplay = row.querySelector('.subtotal-display');
+    
+    if (select.value === '') {
+        priceDisplay.value = '₹0.00';
+        subtotalDisplay.innerText = '₹0.00';
+        qtyInput.max = '';
+        return;
+    }
+    
+    const price = parseFloat(selectedOption.dataset.price) || 0;
+    const stock = parseInt(selectedOption.dataset.stock) || 0;
+    
+    priceDisplay.value = '₹' + price.toFixed(2);
+    qtyInput.max = stock;
+    
+    // Trigger quantity update to refresh line totals
+    handleQuantityInput(rowId);
+}
+
+function handleQuantityInput(rowId) {
+    const row = document.getElementById(`item-row-${rowId}`);
+    const select = row.querySelector('.product-select');
+    const selectedOption = select.options[select.selectedIndex];
+    const qtyInput = row.querySelector('.qty-input');
+    const subtotalDisplay = row.querySelector('.subtotal-display');
+    
+    if (select.value === '' || qtyInput.value === '') {
+        subtotalDisplay.innerText = '₹0.00';
+        recalculateTotals();
+        return;
+    }
+    
+    const price = parseFloat(selectedOption.dataset.price) || 0;
+    const stock = parseInt(selectedOption.dataset.stock) || 0;
+    let qty = parseInt(qtyInput.value) || 0;
+    
+    if (qty > stock) {
+        showToast(`Warning: Requested quantity ${qty} exceeds available stock of ${stock}. Resetting to max.`, 'warning');
+        qty = stock;
+        qtyInput.value = stock;
+    }
+    
+    const subtotal = price * qty;
+    subtotalDisplay.innerText = '₹' + subtotal.toFixed(2);
+    recalculateTotals();
+}
+
+function recalculateTotals() {
+    let grandTotal = 0;
+    const rows = document.querySelectorAll('#itemsTableBody tr');
+    
+    rows.forEach(row => {
+        const select = row.querySelector('.product-select');
+        if (select && select.value !== '') {
+            const selectedOption = select.options[select.selectedIndex];
+            const price = parseFloat(selectedOption.dataset.price) || 0;
+            const qtyInput = row.querySelector('.qty-input');
+            const qty = parseInt(qtyInput.value) || 0;
+            grandTotal += price * qty;
+        }
+    });
+    
+    document.getElementById('grandTotalDisplay').innerText = '₹' + grandTotal.toFixed(2);
+}
+
+function submitOrder() {
+    // Validate rows
+    const rows = document.querySelectorAll('#itemsTableBody tr');
+    let hasItems = false;
+    rows.forEach(row => {
+        const select = row.querySelector('.product-select');
+        if (select && select.value !== '') {
+            hasItems = true;
+        }
+    });
+
+    if (!hasItems) {
+        showToast('Please add at least one item to this order.', 'danger');
+        return;
+    }
+
+    const form = document.getElementById('orderWizardForm');
+    const formData = new FormData(form);
+    
+    showLoader();
+    fetch('../../backend/api/order_actions.php?action=create', {
+        method: 'POST',
+        body: formData
+    })
+    .then(res => res.json())
+    .then(res => {
+        hideLoader();
+        if (res.success) {
+            showToast(res.message, 'success');
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1000);
+        } else {
+            showToast(res.message, 'danger');
+        }
+    })
+    .catch(err => {
+        hideLoader();
+        showToast('Error submitting order details', 'danger');
+        console.error(err);
+    });
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+    return text.toString().replace(/[&<>"']/g, m => map[m]);
+}
+</script>
+
+</body>
+</html>

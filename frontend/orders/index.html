@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grocery Admin Panel - Orders</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.bootstrap5.min.css" rel="stylesheet">
+    <!-- Custom Style Sheet -->
+    <link href="../assets/css/styles.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="app-wrapper">
+    <!-- Dynamically Injected Sidebar -->
+    <div id="sidebar-container"></div>
+    
+    <div class="main-content">
+        <!-- Dynamically Injected Navbar -->
+        <div id="navbar-container"></div>
+        
+        <main class="content-body">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="fw-700 text-primary mb-0"><i class="bi bi-receipt me-2"></i>Order Management</h3>
+                <a href="create.html" class="btn btn-primary">
+                    <i class="bi bi-plus-lg me-2"></i>Create New Order
+                </a>
+            </div>
+
+            <!-- Order Status Quick Filters -->
+            <div class="custom-card mb-4">
+                <div class="card-body py-3">
+                    <div class="row align-items-center g-3">
+                        <div class="col-12 col-md-3">
+                            <label for="filterStatus" class="form-label fw-500 text-secondary mb-1">Filter by Status</label>
+                            <select id="filterStatus" class="form-select">
+                                <option value="">All Orders</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Shipped">Shipped</option>
+                                <option value="Delivered">Delivered</option>
+                                <option value="Cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orders Table -->
+            <div class="custom-card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="ordersTable" class="table table-hover table-striped w-100">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Date</th>
+                                    <th>Total Amount</th>
+                                    <th>Status</th>
+                                    <th>Delivery Agent</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ordersTableBody">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Order Details Modal -->
+<div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title fw-600" id="detailsModalLabel">Order Details</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="detailsModalContent">
+                <!-- Loaded dynamically -->
+            </div>
+            <div class="modal-footer">
+                <a href="" id="printInvoiceBtn" class="btn btn-primary" target="_blank"><i class="bi bi-printer me-2"></i>Print Invoice</a>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Assign Agent Modal -->
+<div class="modal fade" id="assignAgentModal" tabindex="-1" aria-labelledby="assignModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title fw-600" id="assignModalLabel">Assign Delivery Agent</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="assignAgentForm">
+                <input type="hidden" name="csrf_token" id="assignCsrfToken" value="">
+                <input type="hidden" name="Order_ID" id="assignOrderId" value="">
+                
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="agentSelect" class="form-label fw-500">Delivery Agent <span class="text-danger">*</span></label>
+                        <select class="form-select" id="agentSelect" name="Agent_ID" required>
+                            <option value="">Select Agent...</option>
+                            <!-- Loaded dynamically -->
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer border-top-0">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-info text-white">Assign Agent</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Update Status Modal -->
+<div class="modal fade" id="updateStatusModal" tabindex="-1" aria-labelledby="statusModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title fw-600" id="statusModalLabel">Update Order Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="updateStatusForm">
+                <input type="hidden" name="csrf_token" id="statusCsrfToken" value="">
+                <input type="hidden" name="Order_ID" id="statusOrderId" value="">
+                
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="orderStatusSelect" class="form-label fw-500">New Status <span class="text-danger">*</span></label>
+                        <select class="form-select" id="orderStatusSelect" name="Status" required>
+                            <option value="Pending">Pending</option>
+                            <option value="Shipped">Shipped</option>
+                            <option value="Delivered">Delivered</option>
+                            <option value="Cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                    <div class="alert alert-warning border-0 d-none" id="cancelWarning">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <strong>Warning!</strong> Cancelling this order will restore the purchased product quantities back into active inventory. This action cannot be undone.
+                    </div>
+                </div>
+                <div class="modal-footer border-top-0">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning">Update Status</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- JS Libraries -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- DataTables Core & Extensions -->
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.bootstrap5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.print.min.js"></script>
+
+<!-- Global layout controllers -->
+<script src="../assets/js/main.js"></script>
+<script src="../assets/js/layout.js"></script>
+
+<script>
+let oOrdersTable = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadOrders();
+    loadAgentOptions();
+    
+    // Assign CSRF tokens when layout.js finishes authentication fetch
+    setTimeout(() => {
+        document.getElementById('assignCsrfToken').value = window.csrfToken;
+        document.getElementById('statusCsrfToken').value = window.csrfToken;
+    }, 500);
+    
+    // Assign Agent Form Submit
+    document.getElementById('assignAgentForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        saveAgentAssignment();
+    });
+
+    // Update Status Form Submit
+    document.getElementById('updateStatusForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        saveStatusUpdate();
+    });
+
+    // Handle warning display for Cancelled status
+    document.getElementById('orderStatusSelect').addEventListener('change', function() {
+        const warning = document.getElementById('cancelWarning');
+        if (this.value === 'Cancelled') {
+            warning.classList.remove('d-none');
+        } else {
+            warning.classList.add('d-none');
+        }
+    });
+
+    // Quick Status Filter
+    document.getElementById('filterStatus').addEventListener('change', function() {
+        oOrdersTable.column(4).search(this.value).draw();
+    });
+});
+
+function loadOrders() {
+    showLoader();
+    fetch('../../backend/api/crud_handlers.php?module=orders&action=list')
+        .then(res => res.json())
+        .then(res => {
+            hideLoader();
+            if (!res.success) {
+                showToast(res.message, 'danger');
+                return;
+            }
+            
+            if ($.fn.DataTable.isDataTable('#ordersTable')) {
+                $('#ordersTable').DataTable().destroy();
+            }
+            
+            const tbody = document.getElementById('ordersTableBody');
+            tbody.innerHTML = '';
+            
+            res.data.forEach(o => {
+                let badgeClass = 'badge-pending';
+                if (o.Status === 'Delivered') badgeClass = 'badge-delivered';
+                if (o.Status === 'Shipped') badgeClass = 'badge-shipped';
+                if (o.Status === 'Cancelled') badgeClass = 'badge-cancelled';
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="fw-600">#${o.Order_ID}</td>
+                    <td>${escapeHtml(o.Customer_Name)}</td>
+                    <td>${o.Order_Date}</td>
+                    <td class="fw-600">₹${parseFloat(o.Total_Amount).toFixed(2)}</td>
+                    <td>
+                        <span class="badge-status ${badgeClass}">${o.Status}</span>
+                    </td>
+                    <td>${escapeHtml(o.Agent_Name || 'Not Assigned')}</td>
+                    <td class="text-center">
+                        <div class="btn-group gap-2">
+                            <button class="btn btn-sm btn-outline-primary rounded" onclick="viewOrderDetails(${o.Order_ID})" title="View Details">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-info rounded" onclick="openAssignModal(${o.Order_ID}, ${o.Agent_ID || 'null'})" title="Assign Agent">
+                                <i class="bi bi-bicycle"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-warning rounded" onclick="openStatusModal(${o.Order_ID}, '${o.Status}')" title="Update Status">
+                                <i class="bi bi-gear"></i>
+                            </button>
+                            <a class="btn btn-sm btn-outline-secondary rounded" href="invoice.html?id=${o.Order_ID}" target="_blank" title="Invoice">
+                                <i class="bi bi-printer"></i>
+                            </a>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            oOrdersTable = $('#ordersTable').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    { extend: 'csv', className: 'btn btn-sm btn-outline-primary' },
+                    { extend: 'excel', className: 'btn btn-sm btn-outline-primary' },
+                    { extend: 'pdf', className: 'btn btn-sm btn-outline-primary' },
+                    { extend: 'print', className: 'btn btn-sm btn-outline-primary' }
+                ],
+                order: [[0, 'desc']],
+                pageLength: 10,
+                responsive: true
+            });
+        })
+        .catch(err => {
+            hideLoader();
+            showToast('Error loading orders', 'danger');
+            console.error(err);
+        });
+}
+
+function loadAgentOptions() {
+    fetch('../../backend/api/crud_handlers.php?module=delivery_agents&action=list')
+        .then(res => res.json())
+        .then(res => {
+            if (res.success) {
+                const select = document.getElementById('agentSelect');
+                select.innerHTML = '<option value="">Select Agent...</option>';
+                res.data.forEach(a => {
+                    const opt = document.createElement('option');
+                    opt.value = a.Agent_ID;
+                    opt.textContent = a.Name;
+                    select.appendChild(opt);
+                });
+            }
+        })
+        .catch(err => console.error('Error fetching agents:', err));
+}
+
+function viewOrderDetails(id) {
+    showLoader();
+    fetch(`../api/order_actions.php?action=get_details&id=${id}`)
+        .then(res => res.json())
+        .then(res => {
+            hideLoader();
+            if (!res.success) {
+                showToast(res.message, 'danger');
+                return;
+            }
+            
+            const o = res.order;
+            const items = res.items;
+            const p = res.payment;
+            
+            document.getElementById('detailsModalLabel').innerText = `Order Details - #${o.Order_ID}`;
+            document.getElementById('printInvoiceBtn').href = `invoice.html?id=${o.Order_ID}`;
+            
+            let badgeClass = 'badge-pending';
+            if (o.Status === 'Delivered') badgeClass = 'badge-delivered';
+            if (o.Status === 'Shipped') badgeClass = 'badge-shipped';
+            if (o.Status === 'Cancelled') badgeClass = 'badge-cancelled';
+            
+            let payBadge = '<span class="badge bg-secondary">N/A</span>';
+            if (p) {
+                payBadge = p.Payment_Status === 'Success' 
+                    ? '<span class="badge bg-success">Success</span>' 
+                    : (p.Payment_Status === 'Failed' ? '<span class="badge bg-danger">Failed</span>' : '<span class="badge bg-warning text-dark">Pending</span>');
+            }
+            
+            let itemsHtml = '';
+            items.forEach((item, idx) => {
+                const subtotal = parseFloat(item.Quantity * item.Price).toFixed(2);
+                itemsHtml += `
+                    <tr>
+                        <td>${idx + 1}</td>
+                        <td>${escapeHtml(item.Product_Name)}</td>
+                        <td>₹${parseFloat(item.Price).toFixed(2)}</td>
+                        <td>${item.Quantity}</td>
+                        <td class="text-end fw-600">₹${subtotal}</td>
+                    </tr>
+                `;
+            });
+            
+            const html = `
+                <div class="row g-3 mb-4">
+                    <div class="col-12 col-md-6">
+                        <h6 class="fw-700 text-secondary border-bottom pb-1">Customer Details</h6>
+                        <p class="mb-1"><strong>Name:</strong> ${escapeHtml(o.Customer_Name)}</p>
+                        <p class="mb-1"><strong>Phone:</strong> ${escapeHtml(o.Customer_Phone)}</p>
+                        <p class="mb-1"><strong>Email:</strong> ${escapeHtml(o.Customer_Email || 'N/A')}</p>
+                        <p class="mb-0"><strong>Address:</strong> ${escapeHtml(o.Customer_Address || 'N/A')}</p>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <h6 class="fw-700 text-secondary border-bottom pb-1">Order Summary</h6>
+                        <p class="mb-1"><strong>Order Date:</strong> ${o.Order_Date}</p>
+                        <p class="mb-1"><strong>Status:</strong> <span class="badge-status ${badgeClass}">${o.Status}</span></p>
+                        <p class="mb-1"><strong>Payment Status:</strong> ${payBadge} (${p ? escapeHtml(p.Payment_Mode) : 'None'})</p>
+                        <p class="mb-0"><strong>Assigned Agent:</strong> ${escapeHtml(o.Agent_Name || 'Unassigned')}</p>
+                    </div>
+                </div>
+                
+                <h6 class="fw-700 text-primary mb-2">Order Line Items</h6>
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Product</th>
+                                <th>Unit Price</th>
+                                <th>Qty</th>
+                                <th class="text-end">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${itemsHtml}
+                            <tr class="table-light">
+                                <td colspan="4" class="text-end fw-700">Grand Total:</td>
+                                <td class="text-end fw-800 text-primary">₹${parseFloat(o.Total_Amount).toFixed(2)}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            document.getElementById('detailsModalContent').innerHTML = html;
+            const modal = new bootstrap.Modal(document.getElementById('orderDetailsModal'));
+            modal.show();
+        })
+        .catch(err => {
+            hideLoader();
+            showToast('Error retrieving order details', 'danger');
+            console.error(err);
+        });
+}
+
+function openAssignModal(id, current_agent_id) {
+    document.getElementById('assignOrderId').value = id;
+    document.getElementById('agentSelect').value = current_agent_id || '';
+    
+    const modal = new bootstrap.Modal(document.getElementById('assignAgentModal'));
+    modal.show();
+}
+
+function saveAgentAssignment() {
+    const form = document.getElementById('assignAgentForm');
+    const formData = new FormData(form);
+    
+    showLoader();
+    fetch('../../backend/api/order_actions.php?action=assign_agent', {
+        method: 'POST',
+        body: formData
+    })
+    .then(res => res.json())
+    .then(res => {
+        hideLoader();
+        if (res.success) {
+            showToast(res.message, 'success');
+            bootstrap.Modal.getInstance(document.getElementById('assignAgentModal')).hide();
+            loadOrders();
+        } else {
+            showToast(res.message, 'danger');
+        }
+    })
+    .catch(err => {
+        hideLoader();
+        showToast('Error assigning agent', 'danger');
+        console.error(err);
+    });
+}
+
+function openStatusModal(id, current_status) {
+    document.getElementById('statusOrderId').value = id;
+    document.getElementById('orderStatusSelect').value = current_status;
+    document.getElementById('cancelWarning').classList.add('d-none');
+    
+    const modal = new bootstrap.Modal(document.getElementById('updateStatusModal'));
+    modal.show();
+}
+
+function saveStatusUpdate() {
+    const form = document.getElementById('updateStatusForm');
+    const formData = new FormData(form);
+    
+    showLoader();
+    fetch('../../backend/api/order_actions.php?action=update_status', {
+        method: 'POST',
+        body: formData
+    })
+    .then(res => res.json())
+    .then(res => {
+        hideLoader();
+        if (res.success) {
+            showToast(res.message, 'success');
+            bootstrap.Modal.getInstance(document.getElementById('updateStatusModal')).hide();
+            loadOrders();
+        } else {
+            showToast(res.message, 'danger');
+        }
+    })
+    .catch(err => {
+        hideLoader();
+        showToast('Error updating status', 'danger');
+        console.error(err);
+    });
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+    return text.toString().replace(/[&<>"']/g, m => map[m]);
+}
+</script>
+
+</body>
+</html>
