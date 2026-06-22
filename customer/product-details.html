@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details - FreshCart Premium Storefront</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Global Stylesheets -->
+    <link href="/assets/css/styles.css" rel="stylesheet">
+    <link href="/assets/css/customer.css" rel="stylesheet">
+    <script>
+        const colorScheme = localStorage.getItem("color-scheme") || "light";
+        document.documentElement.setAttribute('data-theme', colorScheme);
+    </script>
+    <style>
+        .details-gallery-card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--card-radius);
+            padding: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 480px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: var(--shadow-medium);
+        }
+
+        .details-image-zoom {
+            max-width: 85%;
+            max-height: 85%;
+            object-fit: contain;
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .details-gallery-card:hover .details-image-zoom {
+            transform: scale(1.15);
+        }
+
+        .badge-eta-details {
+            position: absolute;
+            top: 1.5rem;
+            left: 1.5rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+            color: #ffffff;
+            font-size: 0.8rem;
+            font-weight: 800;
+            padding: 0.4rem 0.8rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.2);
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .trust-badge-details {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            background-color: var(--bg-tertiary);
+        }
+
+        .trust-badge-details i {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sticky Navigation Header -->
+    <nav class="navbar navbar-expand-lg customer-navbar glass-effect" id="mainNavbar">
+        <div class="container">
+            <!-- Brand Logo -->
+            <a class="navbar-brand fw-800 text-success d-flex align-items-center gap-2" href="/customer/index.html" style="font-size: 1.6rem; letter-spacing: -0.03em;">
+                <i class="bi bi-cart4 text-success" style="font-size: 1.8rem;"></i>
+                <span style="font-family: var(--font-heading); font-weight: 800; color: var(--text-primary);">Fresh<span class="text-success">Cart</span></span>
+            </a>
+
+            <!-- Search Input (Links to catalog) -->
+            <div class="mx-lg-4 my-2 my-lg-0 flex-grow-1 d-none d-md-block" style="max-width: 520px;">
+                <form action="/customer/products.html">
+                    <div class="search-wrapper">
+                        <input type="text" class="search-input-premium" name="search" placeholder="Search fresh vegetables, organic fruits, bakery items...">
+                        <i class="bi bi-search search-icon-left"></i>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Right Controls -->
+            <div class="d-flex align-items-center gap-3 ms-auto">
+                <!-- Theme Toggle -->
+                <button id="theme-toggle" class="navbar-action-btn" title="Toggle Theme" type="button">
+                    <i class="bi bi-moon-fill"></i>
+                </button>
+
+                <!-- Cart Button -->
+                <button class="btn cart-btn-premium position-relative" type="button" id="cartToggleBtn">
+                    <i class="bi bi-bag-heart me-1"></i>
+                    <span class="d-none d-md-inline">Cart</span>
+                    <span class="badge cart-badge" id="cartBadgeCount">0</span>
+                </button>
+
+                <!-- Profile Dropdown -->
+                <div class="dropdown">
+                    <button class="btn border-0 d-flex align-items-center gap-2 p-1" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center fw-700" style="width: 40px; height: 40px; border: 2px solid var(--border-color);" id="profileInitial">
+                            U
+                        </div>
+                        <span class="d-none d-lg-inline fw-600 text-secondary" id="userDropdownName">User</span>
+                        <i class="bi bi-chevron-down text-secondary fs-8 d-none d-lg-inline"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="profileDropdown">
+                        <li><a class="dropdown-item py-2 fw-600" href="/customer/profile.html"><i class="bi bi-person me-2 text-success"></i> My Profile</a></li>
+                        <li><a class="dropdown-item py-2 fw-600" href="/customer/orders.html"><i class="bi bi-bag-check me-2 text-success"></i> My Orders</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item py-2 fw-600 text-danger" href="#" id="customerSignOutBtn"><i class="bi bi-box-arrow-right me-2"></i> Sign Out</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="container my-5 pb-5">
+        
+        <!-- Back Link -->
+        <div class="mb-4">
+            <a href="javascript:history.back()" class="text-success fw-700 text-decoration-none d-inline-flex align-items-center gap-1">
+                <i class="bi bi-arrow-left"></i> Back to Catalog
+            </a>
+        </div>
+
+        <!-- Details Card Loader -->
+        <div class="card-premium p-4 p-md-5 mb-5" id="detailsLoadingCard">
+            <div class="row g-5">
+                <div class="col-md-6">
+                    <div class="skeleton-pulse" style="height: 380px;"></div>
+                </div>
+                <div class="col-md-6">
+                    <div class="skeleton-pulse mb-3" style="height: 40px; width: 60%;"></div>
+                    <div class="skeleton-pulse mb-3" style="height: 20px; width: 40%;"></div>
+                    <div class="skeleton-pulse mb-4" style="height: 80px; width: 80%;"></div>
+                    <div class="skeleton-pulse" style="height: 60px; width: 50%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Details Showcase -->
+        <div class="row g-5" id="productDetailsCard" style="display:none;">
+            <!-- Left image panel -->
+            <div class="col-12 col-lg-6">
+                <div class="details-gallery-card">
+                    <div class="badge-eta-details">
+                        <i class="bi bi-lightning-charge-fill"></i>
+                        <span>DELIVERED IN 10 MINS</span>
+                    </div>
+                    <img id="detailImage" src="" onerror="" class="details-image-zoom" alt="Product Image">
+                </div>
+            </div>
+
+            <!-- Right details selection panel -->
+            <div class="col-12 col-lg-6 d-flex flex-column justify-content-between">
+                <div>
+                    <!-- Category & Title -->
+                    <div class="mb-3">
+                        <span class="badge bg-success-subtle text-success fw-800 px-3 py-2 mb-2" id="detailCategory">-</span>
+                        <h1 class="fw-800 display-5 mb-2" id="detailTitle">-</h1>
+                        <p class="text-secondary fw-500 mb-0">Certified Premium Grocery Item | Supplied by <span id="detailSupplier" class="fw-700 text-primary">-</span></p>
+                    </div>
+
+                    <!-- Star Ratings -->
+                    <div class="d-flex align-items-center gap-2 mb-4">
+                        <div class="text-warning"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i></div>
+                        <span class="fw-700 text-secondary mt-0.5" id="detailRatingText">4.8 Rating (318 reviews)</span>
+                    </div>
+
+                    <!-- Pricing & Guarantee Info -->
+                    <div class="mb-4 bg-tertiary rounded-4 p-4 border border-secondary-subtle">
+                        <div class="d-flex align-items-baseline gap-2 mb-1">
+                            <h2 class="fw-800 text-success fs-1 mb-0" id="detailPrice">₹0.00</h2>
+                            <span class="text-secondary text-decoration-line-through small" id="detailOldPrice">₹0.00</span>
+                        </div>
+                        <div class="text-secondary small fw-500">Price is inclusive of local GST taxes. Subtotal calculated in cart checkout drawer.</div>
+                    </div>
+
+                    <!-- Inventory Details -->
+                    <div class="mb-4">
+                        <h6 class="fw-800 text-secondary mb-2">Availability Status</h6>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge px-3 py-2 fw-700" id="detailStockBadge">-</span>
+                            <span class="text-secondary fw-600 small" id="detailStockCount">Only - units left!</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add to cart buttons block -->
+                <div class="mt-4 pt-4 border-top border-secondary-subtle">
+                    <div class="d-flex align-items-center gap-3 flex-wrap">
+                        <!-- Qty Select -->
+                        <div class="qty-selector py-2 px-3">
+                            <button class="qty-btn fs-4" id="qtyMinusBtn" aria-label="Decrease Quantity">-</button>
+                            <span class="qty-val fs-5 px-3" id="qtyVal">1</span>
+                            <button class="qty-btn fs-4" id="qtyPlusBtn" aria-label="Increase Quantity">+</button>
+                        </div>
+                        <!-- Add Button -->
+                        <button class="btn btn-premium btn-lg px-5 py-3 fw-800 shadow-sm flex-grow-1 flex-md-grow-0 d-flex align-items-center justify-content-center gap-2" id="detailAddToCartBtn">
+                            <i class="bi bi-bag-plus fs-5"></i>
+                            <span>Add to Cart</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Fast Delivery Promise Details -->
+                <div class="row g-3 mt-4 pt-3">
+                    <div class="col-md-6">
+                        <div class="trust-badge-details">
+                            <i class="bi bi-shield-check"></i>
+                            <div>
+                                <span class="fw-700 d-block text-secondary small">100% Quality</span>
+                                <span class="text-secondary small">Fresh farm guarantee</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="trust-badge-details">
+                            <i class="bi bi-truck"></i>
+                            <div>
+                                <span class="fw-700 d-block text-secondary small">Instant Delivery</span>
+                                <span class="text-secondary small">Average ETA: 10 mins</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Slide-in Cart Drawer Layout -->
+    <div class="cart-drawer-backdrop" id="cartDrawerBackdrop"></div>
+    <div class="cart-drawer" id="cartDrawer">
+        <div class="cart-drawer-header">
+            <h5 class="fw-800 text-secondary mb-0"><i class="bi bi-bag-heart text-success me-2"></i>My Cart</h5>
+            <button type="button" class="btn-close" id="cartCloseBtn" aria-label="Close"></button>
+        </div>
+        <div class="cart-drawer-body" id="cartDrawerBody">
+            <!-- Items loaded dynamically -->
+        </div>
+        <div class="cart-drawer-footer" id="cartDrawerFooter">
+            <div class="d-flex justify-content-between mb-2">
+                <span class="text-secondary fw-500">Subtotal</span>
+                <span class="fw-700" id="cartSubtotal">₹0.00</span>
+            </div>
+            <div class="d-flex justify-content-between mb-3">
+                <span class="text-secondary fw-500">GST (5%) & Delivery</span>
+                <span class="fw-700" id="cartTaxes">₹0.00</span>
+            </div>
+            <div class="d-flex justify-content-between mb-4 border-top pt-3 border-secondary-subtle">
+                <h5 class="fw-700 text-secondary mb-0">Grand Total</h5>
+                <h4 class="fw-800 text-success mb-0" id="cartGrandTotal">₹0.00</h4>
+            </div>
+            <button class="btn btn-premium w-100 py-3 fw-700" id="checkoutBtn" disabled>Proceed to Checkout</button>
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Navigation (Blinkit style) -->
+    <div class="mobile-bottom-nav d-md-none">
+        <a href="/customer/index.html" class="mobile-nav-item">
+            <i class="bi bi-house-door"></i>
+            <span>Home</span>
+        </a>
+        <a href="/customer/products.html" class="mobile-nav-item">
+            <i class="bi bi-search"></i>
+            <span>Search</span>
+        </a>
+        <a href="/customer/orders.html" class="mobile-nav-item">
+            <i class="bi bi-receipt"></i>
+            <span>Orders</span>
+        </a>
+        <a href="/customer/profile.html" class="mobile-nav-item">
+            <i class="bi bi-person"></i>
+            <span>Profile</span>
+        </a>
+        <a href="#" class="mobile-nav-item" id="mobileCartTrigger">
+            <i class="bi bi-bag-heart"></i>
+            <span>Cart</span>
+        </a>
+    </div>
+
+    <!-- Mobile Floating Quick Cart Badge -->
+    <a href="#" class="mobile-floating-cart-badge" id="mobileFloatingCart">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-bag-check fs-5"></i>
+            <div>
+                <span class="fw-800 d-block" id="mobileCartItemCount">0 Items</span>
+                <span class="small opacity-75" id="mobileCartTotalAmount">₹0.00</span>
+            </div>
+        </div>
+        <div class="fw-800 d-flex align-items-center gap-1">
+            <span>View Cart</span>
+            <i class="bi bi-chevron-right"></i>
+        </div>
+    </a>
+
+    <!-- JS Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/auth.js"></script>
+    <script src="/assets/js/products.js"></script>
+    <script src="/assets/js/cart.js"></script>
+    
+    <script>
+        let activeProduct = null;
+        let selectedQty = 1;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Shrink navbar on scroll
+            const navbar = document.getElementById('mainNavbar');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 50) {
+                    navbar.classList.add('navbar-shrink');
+                } else {
+                    navbar.classList.remove('navbar-shrink');
+                }
+            });
+
+            await loadProductDetails();
+            updateCartUI();
+
+            // Cart Drawer events
+            const cartToggle = document.getElementById('cartToggleBtn');
+            const mobileCartTrigger = document.getElementById('mobileCartTrigger');
+            const mobileFloatingCart = document.getElementById('mobileFloatingCart');
+            const cartClose = document.getElementById('cartCloseBtn');
+            const backdrop = document.getElementById('cartDrawerBackdrop');
+            const drawer = document.getElementById('cartDrawer');
+
+            const openDrawer = (e) => {
+                if (e) e.preventDefault();
+                drawer.classList.add('show');
+                backdrop.classList.add('show');
+                updateCartUI();
+            };
+
+            const closeDrawer = () => {
+                drawer.classList.remove('show');
+                backdrop.classList.remove('show');
+            };
+
+            cartToggle.addEventListener('click', openDrawer);
+            if(mobileCartTrigger) mobileCartTrigger.addEventListener('click', openDrawer);
+            if(mobileFloatingCart) mobileFloatingCart.addEventListener('click', openDrawer);
+            cartClose.addEventListener('click', closeDrawer);
+            backdrop.addEventListener('click', closeDrawer);
+
+            // Listen to cart update event
+            window.addEventListener('cart-updated', () => {
+                updateCartUI();
+            });
+
+            // Qty Incrementers
+            document.getElementById('qtyPlusBtn').addEventListener('click', () => {
+                if (!activeProduct) return;
+                if (selectedQty < parseInt(activeProduct.Stock)) {
+                    selectedQty++;
+                    document.getElementById('qtyVal').textContent = selectedQty;
+                } else {
+                    window.API.showToast('Exceeds available stock limits.', 'warning');
+                }
+            });
+
+            document.getElementById('qtyMinusBtn').addEventListener('click', () => {
+                if (selectedQty > 1) {
+                    selectedQty--;
+                    document.getElementById('qtyVal').textContent = selectedQty;
+                }
+            });
+
+            document.getElementById('detailAddToCartBtn').addEventListener('click', () => {
+                if (activeProduct) {
+                    window.Cart.add(activeProduct, selectedQty);
+                    window.API.showToast(`${selectedQty} x ${activeProduct.Product_Name} added to cart!`, 'success');
+                }
+            });
+
+            // Theme toggler
+            document.getElementById('theme-toggle').addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('color-scheme', newTheme);
+            });
+
+            // Checkout btn click
+            document.getElementById('checkoutBtn').addEventListener('click', () => {
+                window.location.href = '/customer/checkout.html';
+            });
+
+            // Sign out
+            document.getElementById('customerSignOutBtn').addEventListener('click', (e) => {
+                e.preventDefault();
+                window.Auth.logout(false);
+            });
+        });
+
+        async function loadProductDetails() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get('id');
+            
+            if (!id) {
+                window.location.href = '/customer/index.html';
+                return;
+            }
+
+            try {
+                // Fetch product details
+                const product = await window.Products.fetchDetails(id);
+                
+                // Fetch category list
+                const categories = await window.Products.fetchCategories();
+                
+                // Fetch supplier details
+                let supplierName = 'Local Supplier';
+                try {
+                    const supRes = await window.API.get('crud_handlers.php', { module: 'suppliers', action: 'get', id: product.Supplier_ID });
+                    if (supRes.success && supRes.data) {
+                        supplierName = supRes.data.Name;
+                    }
+                } catch(e) {
+                    console.error("Supplier failed", e);
+                }
+
+                const category = categories.find(c => parseInt(c.Category_ID) === parseInt(product.Category_ID));
+                product.Category_Name = category ? category.Category_Name : 'Groceries';
+
+                activeProduct = product;
+
+                // Bind UI
+                document.getElementById('detailTitle').textContent = product.Product_Name;
+                document.getElementById('detailPrice').textContent = `₹${parseFloat(product.Price).toFixed(2)}`;
+                document.getElementById('detailOldPrice').textContent = `₹${(parseFloat(product.Price) * 1.15).toFixed(2)}`;
+                document.getElementById('detailCategory').textContent = product.Category_Name;
+                document.getElementById('detailSupplier').textContent = supplierName;
+                
+                const inStock = parseInt(product.Stock) > 0;
+                
+                const stockBadge = document.getElementById('detailStockBadge');
+                stockBadge.textContent = inStock ? 'In Stock' : 'Out of Stock';
+                stockBadge.className = inStock ? 'badge bg-success-subtle text-success px-3 py-2 fw-700' : 'badge bg-danger-subtle text-danger px-3 py-2 fw-700';
+                
+                document.getElementById('detailStockCount').textContent = inStock ? `Only ${product.Stock} units left!` : 'Available soon.';
+                
+                // Image
+                const imagePath = `/uploads/product_${product.Product_ID}.jpg`;
+                const fallbackHtml = window.Products.getProductPlaceholder(product.Category_Name);
+                
+                const img = document.getElementById('detailImage');
+                img.src = imagePath;
+                img.onerror = function() {
+                    this.outerHTML = fallbackHtml;
+                };
+
+                // Add to cart state
+                document.getElementById('detailAddToCartBtn').disabled = !inStock;
+                if (!inStock) {
+                    document.getElementById('qtyPlusBtn').disabled = true;
+                    document.getElementById('qtyMinusBtn').disabled = true;
+                }
+
+                // Rating Mock
+                const rating = (4.5 + (product.Product_ID % 5) * 0.1).toFixed(1);
+                const reviewCount = product.Product_ID * 12 + 8;
+                document.getElementById('detailRatingText').textContent = `${rating} Rating (${reviewCount} reviews)`;
+
+                // Hide loader, show details card
+                document.getElementById('detailsLoadingCard').style.display = 'none';
+                document.getElementById('productDetailsCard').style.display = 'flex';
+
+            } catch (err) {
+                console.error(err);
+                window.location.href = '/customer/index.html';
+            }
+        }
+
+        // --- Cart Drawer Updates ---
+        function updateCartUI() {
+            const count = window.Cart.getCount();
+            document.getElementById('cartBadgeCount').textContent = count;
+            
+            const mobileCount = document.getElementById('mobileCartItemCount');
+            const mobileTotal = document.getElementById('mobileCartTotalAmount');
+            const mobileFloatingCart = document.getElementById('mobileFloatingCart');
+            
+            const tbody = document.getElementById('cartDrawerBody');
+            const items = window.Cart.getItems();
+            
+            tbody.innerHTML = '';
+            
+            if (items.length === 0) {
+                tbody.innerHTML = `
+                    <div class="py-5 text-center text-secondary">
+                        <i class="bi bi-bag-x fs-1 d-block mb-3 text-tertiary"></i>
+                        <h5>Your cart is empty</h5>
+                        <p class="small mb-0">Add fresh groceries to get started.</p>
+                    </div>
+                `;
+                document.getElementById('cartSubtotal').textContent = '₹0.00';
+                document.getElementById('cartTaxes').textContent = '₹0.00';
+                document.getElementById('cartGrandTotal').textContent = '₹0.00';
+                document.getElementById('checkoutBtn').disabled = true;
+                
+                if (mobileFloatingCart) mobileFloatingCart.classList.remove('show');
+                return;
+            }
+
+            items.forEach(item => {
+                const itemSub = item.Price * item.Quantity;
+                const fallbackHtml = window.Products.getProductPlaceholder(item.Category_Name);
+                const imgPath = `/uploads/product_${item.Product_ID}.jpg`;
+
+                tbody.innerHTML += `
+                    <div class="cart-item-row">
+                        <div class="cart-item-img">
+                            <img src="${imgPath}" onerror="this.outerHTML='${fallbackHtml.replace(/'/g, "\\'")}'">
+                        </div>
+                        <div class="cart-item-details">
+                            <div class="cart-item-title">${item.Product_Name}</div>
+                            <div class="d-flex align-items-center justify-content-between mt-2">
+                                <div class="qty-selector">
+                                    <button class="qty-btn" onclick="updateCartItemQty(${item.Product_ID}, ${item.Quantity - 1})">-</button>
+                                    <span class="qty-val">${item.Quantity}</span>
+                                    <button class="qty-btn" onclick="updateCartItemQty(${item.Product_ID}, ${item.Quantity + 1})">+</button>
+                                </div>
+                                <span class="cart-item-price">₹${parseFloat(itemSub).toFixed(2)}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            const totals = window.Cart.getTotals();
+            document.getElementById('cartSubtotal').textContent = `₹${totals.subtotal.toFixed(2)}`;
+            
+            let taxDeliveryText = `₹${totals.tax.toFixed(2)}`;
+            if (totals.deliveryFee > 0) {
+                taxDeliveryText += ` (+ ₹${totals.deliveryFee.toFixed(2)} delivery)`;
+            } else {
+                taxDeliveryText += ` (Free delivery)`;
+            }
+            
+            document.getElementById('cartTaxes').textContent = taxDeliveryText;
+            document.getElementById('cartGrandTotal').textContent = `₹${totals.total.toFixed(2)}`;
+            document.getElementById('checkoutBtn').disabled = false;
+
+            if (mobileCount && mobileTotal && mobileFloatingCart) {
+                mobileCount.textContent = `${count} ${count === 1 ? 'Item' : 'Items'}`;
+                mobileTotal.textContent = `₹${totals.total.toFixed(2)}`;
+                mobileFloatingCart.classList.add('show');
+            }
+        }
+
+        function updateCartItemQty(id, qty) {
+            window.Cart.updateQty(id, qty);
+        }
+    </script>
+</body>
+</html>

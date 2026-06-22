@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders - FreshCart Premium Storefront</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Global Stylesheets -->
+    <link href="/assets/css/styles.css" rel="stylesheet">
+    <link href="/assets/css/customer.css" rel="stylesheet">
+    <script>
+        const colorScheme = localStorage.getItem("color-scheme") || "light";
+        document.documentElement.setAttribute('data-theme', colorScheme);
+    </script>
+    <style>
+        .invoice-item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .invoice-item-row:last-child {
+            border-bottom: none;
+        }
+
+        .invoice-receipt-card {
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-tertiary);
+            border-radius: 14px;
+            padding: 1.25rem;
+        }
+
+        .btn-invoice-action {
+            border-radius: 10px;
+            font-size: 0.825rem;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sticky Navigation Header -->
+    <nav class="navbar navbar-expand-lg customer-navbar glass-effect" id="mainNavbar">
+        <div class="container">
+            <!-- Brand Logo -->
+            <a class="navbar-brand fw-800 text-success d-flex align-items-center gap-2" href="/customer/index.html" style="font-size: 1.6rem; letter-spacing: -0.03em;">
+                <i class="bi bi-cart4 text-success" style="font-size: 1.8rem;"></i>
+                <span style="font-family: var(--font-heading); font-weight: 800; color: var(--text-primary);">Fresh<span class="text-success">Cart</span></span>
+            </a>
+
+            <!-- Right Controls -->
+            <div class="d-flex align-items-center gap-3 ms-auto">
+                <!-- Theme Toggle -->
+                <button id="theme-toggle" class="navbar-action-btn" title="Toggle Theme" type="button">
+                    <i class="bi bi-moon-fill"></i>
+                </button>
+
+                <!-- Cart Button -->
+                <button class="btn cart-btn-premium position-relative" type="button" id="cartToggleBtn">
+                    <i class="bi bi-bag-heart me-1"></i>
+                    <span class="d-none d-md-inline">Cart</span>
+                    <span class="badge cart-badge" id="cartBadgeCount">0</span>
+                </button>
+
+                <!-- Profile Dropdown -->
+                <div class="dropdown">
+                    <button class="btn border-0 d-flex align-items-center gap-2 p-1" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center fw-700" style="width: 40px; height: 40px; border: 2px solid var(--border-color);" id="profileInitial">
+                            U
+                        </div>
+                        <span class="d-none d-lg-inline fw-600 text-secondary" id="userDropdownName">User</span>
+                        <i class="bi bi-chevron-down text-secondary fs-8 d-none d-lg-inline"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="profileDropdown">
+                        <li><a class="dropdown-item py-2 fw-600" href="/customer/profile.html"><i class="bi bi-person me-2 text-success"></i> My Profile</a></li>
+                        <li><a class="dropdown-item py-2 fw-600" href="/customer/orders.html"><i class="bi bi-bag-check me-2 text-success"></i> My Orders</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item py-2 fw-600 text-danger" href="#" id="customerSignOutBtn"><i class="bi bi-box-arrow-right me-2"></i> Sign Out</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="container my-5 pb-5">
+        
+        <!-- TRACK ORDER STATE VIEW -->
+        <div id="trackOrderView" style="display:none;">
+            <div class="d-flex align-items-center gap-2 mb-4">
+                <button class="btn btn-outline-premium btn-sm d-flex align-items-center gap-1.5" onclick="toggleView(false)">
+                    <i class="bi bi-arrow-left"></i>
+                    <span>Back to History</span>
+                </button>
+                <h4 class="fw-800 mb-0 ms-2">Order Tracking</h4>
+            </div>
+
+            <div class="row g-4">
+                <!-- Visual tracking tracker timeline -->
+                <div class="col-12 col-lg-7">
+                    <div class="card-premium p-4">
+                        <h5 class="fw-800 border-bottom border-secondary-subtle pb-3 mb-3">Live Progress</h5>
+                        <div id="liveTrackerContainer">
+                            <!-- Track progress details loaded dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Order summary details -->
+                <div class="col-12 col-lg-5">
+                    <div class="card-premium p-4">
+                        <div class="d-flex justify-content-between mb-3 border-bottom border-secondary-subtle pb-2">
+                            <h5 class="fw-800 mb-0">Order #<span id="trackOrderId">0</span></h5>
+                            <span class="badge bg-success-subtle text-success px-2.5 py-1.5 fw-700" id="trackOrderDate">-</span>
+                        </div>
+
+                        <!-- Assigned Agent Info -->
+                        <div id="agentTrackerCard" class="p-3 bg-tertiary rounded-3 mb-4 d-flex align-items-center gap-3 border border-secondary-subtle" style="display:none !important;">
+                            <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; font-size: 1.5rem;">
+                                <i class="bi bi-bicycle text-white"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-800 mb-0" id="agentTrackName">Rahul Sharma</h6>
+                                <div class="text-secondary small fw-600">Delivery Partner | <span id="agentTrackPhone">-</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Summary items -->
+                        <h6 class="fw-800 text-secondary mb-3"><i class="bi bi-list-check me-1"></i>Order Items</h6>
+                        <div id="trackItemsSummary" class="mb-4">
+                            <!-- Loaded dynamically -->
+                        </div>
+
+                        <div class="d-flex justify-content-between border-top border-secondary-subtle pt-3">
+                            <h6 class="text-secondary fw-700 mb-0">Paid via <span id="trackPayMode">-</span>:</h6>
+                            <h5 class="fw-800 text-success mb-0" id="trackGrandTotal">₹0.00</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- LIST ORDERS HISTORY VIEW -->
+        <div id="listOrdersView">
+            <h3 class="fw-800 mb-4" style="letter-spacing: -0.02em;">Order History</h3>
+            
+            <div class="card-premium p-4">
+                <div class="table-responsive">
+                    <table class="table align-middle" style="margin-bottom: 0;">
+                        <thead>
+                            <tr style="border-bottom: 1.5px solid var(--border-color);">
+                                <th class="py-3 fw-800 text-secondary" style="font-size: 0.85rem;">ORDER ID</th>
+                                <th class="py-3 fw-800 text-secondary" style="font-size: 0.85rem;">ORDER DATE</th>
+                                <th class="py-3 fw-800 text-secondary" style="font-size: 0.85rem;">TOTAL AMOUNT</th>
+                                <th class="py-3 fw-800 text-secondary" style="font-size: 0.85rem;">STATUS</th>
+                                <th class="py-3 fw-800 text-secondary" style="font-size: 0.85rem;">ACTIONS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersHistoryBody">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="text-center py-5" id="historyEmptyState" style="display:none;">
+                    <i class="bi bi-receipt text-tertiary" style="font-size: 4rem;"></i>
+                    <h5 class="fw-800 mt-3">No Orders Found</h5>
+                    <p class="text-secondary small mb-0">You have not placed any orders with FreshCart yet.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Detailed Invoice Modal -->
+    <div class="modal fade" id="invoiceModal" tabindex="-1" aria-labelledby="invoiceModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-800 text-success" id="invoiceModalLabel"><i class="bi bi-receipt-cutoff me-2"></i>Invoice Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body py-4">
+                    <div class="row mb-3 pb-3 border-bottom border-secondary-subtle">
+                        <div class="col-6">
+                            <span class="text-secondary fw-700 small d-block mb-1">RECEIPT INFO</span>
+                            <div class="fw-800">Order ID: #<span id="invId">-</span></div>
+                            <div class="small text-secondary fw-600">Placed: <span id="invDate">-</span></div>
+                        </div>
+                        <div class="col-6 text-end">
+                            <span class="text-secondary fw-700 small d-block mb-1">STATUS</span>
+                            <span class="badge" id="invStatus" style="font-size: 0.8rem; padding: 0.4rem 0.75rem;">-</span>
+                        </div>
+                    </div>
+
+                    <h6 class="fw-800 text-secondary mb-3">Items Purchased</h6>
+                    <div class="invoice-receipt-card mb-4">
+                        <div id="invItemsList">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between border-top border-secondary-subtle pt-3">
+                        <span class="text-secondary fw-800">Total Paid (Incl. GST)</span>
+                        <strong class="text-success fs-4" id="invGrandTotal">₹0.00</strong>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-premium btn-invoice-action flex-grow-1" id="trackFromInvoiceBtn" data-bs-dismiss="modal">Track Delivery</button>
+                    <button type="button" class="btn btn-outline-premium btn-invoice-action" data-bs-dismiss="modal">Dismiss</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide-in Cart Drawer Layout -->
+    <div class="cart-drawer-backdrop" id="cartDrawerBackdrop"></div>
+    <div class="cart-drawer" id="cartDrawer">
+        <div class="cart-drawer-header">
+            <h5 class="fw-800 text-secondary mb-0"><i class="bi bi-bag-heart text-success me-2"></i>My Cart</h5>
+            <button type="button" class="btn-close" id="cartCloseBtn" aria-label="Close"></button>
+        </div>
+        <div class="cart-drawer-body" id="cartDrawerBody">
+            <!-- Items loaded dynamically -->
+        </div>
+        <div class="cart-drawer-footer" id="cartDrawerFooter">
+            <div class="d-flex justify-content-between mb-2">
+                <span class="text-secondary fw-500">Subtotal</span>
+                <span class="fw-700" id="cartSubtotal">₹0.00</span>
+            </div>
+            <div class="d-flex justify-content-between mb-3">
+                <span class="text-secondary fw-500">GST (5%) & Delivery</span>
+                <span class="fw-700" id="cartTaxes">₹0.00</span>
+            </div>
+            <div class="d-flex justify-content-between mb-4 border-top pt-3 border-secondary-subtle">
+                <h5 class="fw-700 text-secondary mb-0">Grand Total</h5>
+                <h4 class="fw-800 text-success mb-0" id="cartGrandTotal">₹0.00</h4>
+            </div>
+            <button class="btn btn-premium w-100 py-3 fw-700" id="checkoutBtn" disabled>Proceed to Checkout</button>
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Navigation (Blinkit style) -->
+    <div class="mobile-bottom-nav d-md-none">
+        <a href="/customer/index.html" class="mobile-nav-item">
+            <i class="bi bi-house-door"></i>
+            <span>Home</span>
+        </a>
+        <a href="/customer/products.html" class="mobile-nav-item">
+            <i class="bi bi-search"></i>
+            <span>Search</span>
+        </a>
+        <a href="/customer/orders.html" class="mobile-nav-item active">
+            <i class="bi bi-receipt"></i>
+            <span>Orders</span>
+        </a>
+        <a href="/customer/profile.html" class="mobile-nav-item">
+            <i class="bi bi-person"></i>
+            <span>Profile</span>
+        </a>
+    </div>
+
+    <!-- JS Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/auth.js"></script>
+    <script src="/assets/js/products.js"></script>
+    <script src="/assets/js/cart.js"></script>
+    <script src="/assets/js/orders.js"></script>
+    
+    <script>
+        let trackingInterval = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Shrink navbar on scroll
+            const navbar = document.getElementById('mainNavbar');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 50) {
+                    navbar.classList.add('navbar-shrink');
+                } else {
+                    navbar.classList.remove('navbar-shrink');
+                }
+            });
+
+            await initializeView();
+            updateCartUI();
+
+            // Cart Drawer events
+            const cartToggle = document.getElementById('cartToggleBtn');
+            const cartClose = document.getElementById('cartCloseBtn');
+            const backdrop = document.getElementById('cartDrawerBackdrop');
+            const drawer = document.getElementById('cartDrawer');
+
+            cartToggle.addEventListener('click', () => {
+                drawer.classList.add('show');
+                backdrop.classList.add('show');
+                updateCartUI();
+            });
+
+            const closeDrawer = () => {
+                drawer.classList.remove('show');
+                backdrop.classList.remove('show');
+            };
+
+            cartClose.addEventListener('click', closeDrawer);
+            backdrop.addEventListener('click', closeDrawer);
+
+            // Listen to cart update event
+            window.addEventListener('cart-updated', () => {
+                updateCartUI();
+            });
+
+            // Theme toggler
+            document.getElementById('theme-toggle').addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('color-scheme', newTheme);
+            });
+
+            // Sign out
+            document.getElementById('customerSignOutBtn').addEventListener('click', (e) => {
+                e.preventDefault();
+                window.Auth.logout(false);
+            });
+        });
+
+        async function initializeView() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderId = urlParams.get('id');
+            const isTracking = urlParams.get('track');
+
+            if (orderId && isTracking === 'true') {
+                toggleView(true);
+                await loadLiveTracking(orderId);
+            } else {
+                toggleView(false);
+                await loadOrdersHistory();
+            }
+        }
+
+        function toggleView(showTracker) {
+            document.getElementById('trackOrderView').style.display = showTracker ? 'block' : 'none';
+            document.getElementById('listOrdersView').style.display = showTracker ? 'none' : 'block';
+            
+            // Clear tracking interval if moving away
+            if (!showTracker && trackingInterval) {
+                clearInterval(trackingInterval);
+                trackingInterval = null;
+            }
+        }
+
+        async function loadOrdersHistory() {
+            try {
+                const activeCustId = window.Cart.getCustomerId();
+                const orders = await window.Orders.fetchAll();
+                
+                // Filter orders to only active customer
+                const myOrders = orders.filter(o => parseInt(o.Customer_ID) === parseInt(activeCustId));
+                
+                const tbody = document.getElementById('ordersHistoryBody');
+                tbody.innerHTML = '';
+
+                if (myOrders.length === 0) {
+                    document.getElementById('historyEmptyState').style.display = 'block';
+                    return;
+                }
+
+                document.getElementById('historyEmptyState').style.display = 'none';
+
+                myOrders.forEach(o => {
+                    let badge = 'bg-secondary';
+                    if (o.Status === 'Delivered') badge = 'bg-success';
+                    if (o.Status === 'Pending') badge = 'bg-warning text-dark';
+                    if (o.Status === 'Shipped') badge = 'bg-info';
+                    if (o.Status === 'Cancelled') badge = 'bg-danger';
+
+                    tbody.innerHTML += `
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td class="py-3"><strong>#${o.Order_ID}</strong></td>
+                            <td class="py-3 fw-500 text-secondary">${o.Order_Date}</td>
+                            <td class="py-3 fw-800 text-success">₹${parseFloat(o.Total_Amount).toFixed(2)}</td>
+                            <td class="py-3"><span class="badge ${badge} px-2.5 py-1.5 fw-700" style="font-size: 0.775rem;">${o.Status}</span></td>
+                            <td class="py-3">
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-sm btn-outline-success px-3 py-1.5 fw-700" style="border-radius: 10px;" onclick="trackOrderDirect(${o.Order_ID})">
+                                        <i class="bi bi-bicycle me-1"></i> Track
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-premium px-3 py-1.5 fw-700" style="border-radius: 10px;" onclick="viewInvoice(${o.Order_ID})">
+                                        <i class="bi bi-receipt me-1"></i> Invoice
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function trackOrderDirect(id) {
+            window.location.search = `?id=${id}&track=true`;
+        }
+
+        async function viewInvoice(id) {
+            try {
+                const details = await window.Orders.fetchDetails(id);
+                if (details) {
+                    document.getElementById('invId').textContent = details.order.Order_ID;
+                    document.getElementById('invDate').textContent = details.order.Order_Date;
+                    
+                    const statusBadge = document.getElementById('invStatus');
+                    statusBadge.textContent = details.order.Status;
+                    statusBadge.className = 'badge px-2.5 py-1.5 fw-700';
+                    if (details.order.Status === 'Delivered') statusBadge.classList.add('bg-success');
+                    if (details.order.Status === 'Pending') statusBadge.classList.add('bg-warning', 'text-dark');
+                    if (details.order.Status === 'Shipped') statusBadge.classList.add('bg-info');
+                    if (details.order.Status === 'Cancelled') statusBadge.classList.add('bg-danger');
+
+                    // Bind items
+                    const container = document.getElementById('invItemsList');
+                    container.innerHTML = '';
+                    details.items.forEach(item => {
+                        const total = item.Price * item.Quantity;
+                        container.innerHTML += `
+                            <div class="invoice-item-row small">
+                                <div class="fw-700 text-secondary">${item.Product_Name} <span class="text-tertiary">x${item.Quantity}</span></div>
+                                <span class="fw-800 text-secondary">₹${total.toFixed(2)}</span>
+                            </div>
+                        `;
+                    });
+
+                    // Grand total calculations
+                    const subtotal = details.items.reduce((acc, item) => acc + (item.Price * item.Quantity), 0);
+                    const tax = subtotal * 0.05;
+                    const delivery = (subtotal > 500 || subtotal === 0) ? 0 : 40;
+                    const grandTotal = subtotal + tax + delivery;
+
+                    document.getElementById('invGrandTotal').textContent = `₹${grandTotal.toFixed(2)}`;
+
+                    // Track button trigger from invoice modal
+                    document.getElementById('trackFromInvoiceBtn').onclick = () => {
+                        trackOrderDirect(id);
+                    };
+
+                    const modal = new bootstrap.Modal(document.getElementById('invoiceModal'));
+                    modal.show();
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function loadLiveTracking(id) {
+            const refreshTracker = async () => {
+                try {
+                    const details = await window.Orders.fetchDetails(id);
+                    if (details) {
+                        const order = details.order;
+                        
+                        document.getElementById('trackOrderId').textContent = order.Order_ID;
+                        document.getElementById('trackOrderDate').textContent = order.Order_Date;
+                        document.getElementById('trackPayMode').textContent = details.payment ? details.payment.Payment_Mode : 'UPI';
+                        
+                        // Render Tracker HTML
+                        document.getElementById('liveTrackerContainer').innerHTML = window.Orders.renderTracker(order.Status);
+
+                        // Assigned Agent card
+                        const agentCard = document.getElementById('agentTrackerCard');
+                        if (order.Agent_Name) {
+                            document.getElementById('agentTrackName').textContent = order.Agent_Name;
+                            document.getElementById('agentTrackPhone').textContent = order.Agent_Phone;
+                            agentCard.style.setProperty('display', 'flex', 'important');
+                        } else {
+                            agentCard.style.setProperty('display', 'none', 'important');
+                        }
+
+                        // Summary items
+                        const container = document.getElementById('trackItemsSummary');
+                        container.innerHTML = '';
+                        let subtotal = 0;
+                        
+                        details.items.forEach(item => {
+                            const total = item.Price * item.Quantity;
+                            subtotal += total;
+                            container.innerHTML += `
+                                <div class="d-flex justify-content-between mb-2 text-secondary small fw-600">
+                                    <span>${item.Product_Name} <span class="text-tertiary">x${item.Quantity}</span></span>
+                                    <span>₹${total.toFixed(2)}</span>
+                                </div>
+                            `;
+                        });
+
+                        const tax = subtotal * 0.05;
+                        const delivery = (subtotal > 500 || subtotal === 0) ? 0 : 40;
+                        const grandTotal = subtotal + tax + delivery;
+
+                        document.getElementById('trackGrandTotal').textContent = `₹${grandTotal.toFixed(2)}`;
+
+                        // Stop polling if delivered or cancelled
+                        if (['Delivered', 'Cancelled'].includes(order.Status) && trackingInterval) {
+                            clearInterval(trackingInterval);
+                            trackingInterval = null;
+                        }
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
+            };
+
+            // Initial load
+            await refreshTracker();
+
+            // Poll every 5 seconds for status updates
+            trackingInterval = setInterval(refreshTracker, 5000);
+        }
+
+        // --- Cart Drawer Updates ---
+        function updateCartUI() {
+            const count = window.Cart.getCount();
+            document.getElementById('cartBadgeCount').textContent = count;
+            
+            const tbody = document.getElementById('cartDrawerBody');
+            const items = window.Cart.getItems();
+            
+            tbody.innerHTML = '';
+            
+            if (items.length === 0) {
+                tbody.innerHTML = `
+                    <div class="py-5 text-center text-secondary">
+                        <i class="bi bi-cart3 fs-1 d-block mb-3 text-tertiary"></i>
+                        <h5>Your cart is empty</h5>
+                        <p class="small mb-0">Add fresh groceries to get started.</p>
+                    </div>
+                `;
+                document.getElementById('cartSubtotal').textContent = '₹0.00';
+                document.getElementById('cartTaxes').textContent = '₹0.00';
+                document.getElementById('cartGrandTotal').textContent = '₹0.00';
+                document.getElementById('checkoutBtn').disabled = true;
+                return;
+            }
+
+            items.forEach(item => {
+                const itemSub = item.Price * item.Quantity;
+                const fallbackHtml = window.Products.getProductPlaceholder(item.Category_Name);
+                const imgPath = `/uploads/product_${item.Product_ID}.jpg`;
+
+                tbody.innerHTML += `
+                    <div class="cart-item-row">
+                        <div class="cart-item-img">
+                            <img src="${imgPath}" onerror="this.outerHTML='${fallbackHtml.replace(/'/g, "\\'")}'">
+                        </div>
+                        <div class="cart-item-details">
+                            <div class="cart-item-title">${item.Product_Name}</div>
+                            <div class="d-flex align-items-center justify-content-between mt-2">
+                                <div class="qty-selector">
+                                    <button class="qty-btn" onclick="updateCartItemQty(${item.Product_ID}, ${item.Quantity - 1})">-</button>
+                                    <span class="qty-val">${item.Quantity}</span>
+                                    <button class="qty-btn" onclick="updateCartItemQty(${item.Product_ID}, ${item.Quantity + 1})">+</button>
+                                </div>
+                                <span class="cart-item-price">₹${parseFloat(itemSub).toFixed(2)}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Calculate summaries
+            const totals = window.Cart.getTotals();
+            document.getElementById('cartSubtotal').textContent = `₹${totals.subtotal.toFixed(2)}`;
+            
+            let taxDeliveryText = `₹${totals.tax.toFixed(2)}`;
+            if (totals.deliveryFee > 0) {
+                taxDeliveryText += ` (+ ₹${totals.deliveryFee.toFixed(2)} delivery)`;
+            } else {
+                taxDeliveryText += ` (Free delivery)`;
+            }
+            
+            document.getElementById('cartTaxes').textContent = taxDeliveryText;
+            document.getElementById('cartGrandTotal').textContent = `₹${totals.total.toFixed(2)}`;
+            document.getElementById('checkoutBtn').disabled = false;
+        }
+
+        function updateCartItemQty(id, qty) {
+            window.Cart.updateQty(id, qty);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Profile - FreshCart Premium Storefront</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Global Stylesheets -->
+    <link href="/assets/css/styles.css" rel="stylesheet">
+    <link href="/assets/css/customer.css" rel="stylesheet">
+    <script>
+        const colorScheme = localStorage.getItem("color-scheme") || "light";
+        document.documentElement.setAttribute('data-theme', colorScheme);
+    </script>
+    <style>
+        .profile-stat-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--card-radius);
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: var(--shadow-soft);
+            transition: var(--transition-smooth);
+        }
+
+        .profile-stat-box:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .profile-switcher-card {
+            background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.08) 0%, rgba(255, 179, 0, 0.04) 100%);
+            border: 1px solid rgba(var(--primary-rgb), 0.15);
+            border-radius: var(--card-radius);
+        }
+
+        [data-theme="dark"] .profile-switcher-card {
+            background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.03) 0%, rgba(30, 41, 59, 0.5) 100%);
+            border-color: rgba(var(--primary-rgb), 0.10);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sticky Navigation Header -->
+    <nav class="navbar navbar-expand-lg customer-navbar glass-effect" id="mainNavbar">
+        <div class="container">
+            <!-- Brand Logo -->
+            <a class="navbar-brand fw-800 text-success d-flex align-items-center gap-2" href="/customer/index.html" style="font-size: 1.6rem; letter-spacing: -0.03em;">
+                <i class="bi bi-cart4 text-success" style="font-size: 1.8rem;"></i>
+                <span style="font-family: var(--font-heading); font-weight: 800; color: var(--text-primary);">Fresh<span class="text-success">Cart</span></span>
+            </a>
+
+            <!-- Right Controls -->
+            <div class="d-flex align-items-center gap-3 ms-auto">
+                <!-- Theme Toggle -->
+                <button id="theme-toggle" class="navbar-action-btn" title="Toggle Theme" type="button">
+                    <i class="bi bi-moon-fill"></i>
+                </button>
+
+                <!-- Cart Button -->
+                <button class="btn cart-btn-premium position-relative" type="button" id="cartToggleBtn">
+                    <i class="bi bi-bag-heart me-1"></i>
+                    <span class="d-none d-md-inline">Cart</span>
+                    <span class="badge cart-badge" id="cartBadgeCount">0</span>
+                </button>
+
+                <!-- Profile Dropdown -->
+                <div class="dropdown">
+                    <button class="btn border-0 d-flex align-items-center gap-2 p-1" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center fw-700" style="width: 40px; height: 40px; border: 2px solid var(--border-color);" id="profileInitial">
+                            U
+                        </div>
+                        <span class="d-none d-lg-inline fw-600 text-secondary" id="userDropdownName">User</span>
+                        <i class="bi bi-chevron-down text-secondary fs-8 d-none d-lg-inline"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="profileDropdown">
+                        <li><a class="dropdown-item py-2 fw-600" href="/customer/profile.html"><i class="bi bi-person me-2 text-success"></i> My Profile</a></li>
+                        <li><a class="dropdown-item py-2 fw-600" href="/customer/orders.html"><i class="bi bi-bag-check me-2 text-success"></i> My Orders</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item py-2 fw-600 text-danger" href="#" id="customerSignOutBtn"><i class="bi bi-box-arrow-right me-2"></i> Sign Out</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="container my-5 pb-5">
+        
+        <!-- Profile Account Switcher -->
+        <div class="card profile-switcher-card p-4 mb-5 d-flex flex-wrap flex-sm-nowrap align-items-center justify-content-between gap-3 shadow-sm">
+            <div class="fw-700 text-secondary">
+                <i class="bi bi-arrow-repeat text-success me-1 fs-5"></i> Developer Account Switcher
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <label for="profileSwitcherSelect" class="text-secondary small fw-700 mb-0" style="white-space: nowrap;">Active Shopper Profile:</label>
+                <select class="form-select form-select-sm form-premium" id="profileSwitcherSelect" style="width: 240px; padding: 0.375rem 2.25rem 0.375rem 0.75rem;">
+                    <!-- Populated dynamically -->
+                </select>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Account Information Form -->
+            <div class="col-12 col-lg-8">
+                <div class="card-premium p-4">
+                    <h4 class="fw-800 mb-4 pb-2 border-bottom border-secondary-subtle">My Delivery Settings</h4>
+                    
+                    <form id="profileForm">
+                        <input type="hidden" id="Customer_ID" name="Customer_ID" value="0">
+                        <input type="hidden" id="Registered_Date" name="Registered_Date" value="">
+                        
+                        <div class="mb-3">
+                            <label for="Name" class="form-label fw-700 text-secondary mb-2" style="font-size: 0.85rem;">Full Name</label>
+                            <input type="text" class="form-control form-premium" id="Name" name="Name" placeholder="Full name" required>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="Email" class="form-label fw-700 text-secondary mb-2" style="font-size: 0.85rem;">Email Address</label>
+                                <input type="email" class="form-control form-premium" id="Email" name="Email" placeholder="Email contact" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="Phone" class="form-label fw-700 text-secondary mb-2" style="font-size: 0.85rem;">Phone Number</label>
+                                <input type="text" class="form-control form-premium" id="Phone" name="Phone" placeholder="Phone contact" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="Address" class="form-label fw-700 text-secondary mb-2" style="font-size: 0.85rem;">Saved Delivery Address</label>
+                            <textarea class="form-control form-premium" id="Address" name="Address" rows="4" placeholder="Enter full delivery address details (flat, building, area, zip)" required></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-premium px-4 py-3 fw-700 shadow-sm" id="saveProfileBtn">Save Address Changes</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Profile statistics -->
+            <div class="col-12 col-lg-4">
+                <div class="card-premium p-4">
+                    <h5 class="fw-800 mb-4 pb-2 border-bottom border-secondary-subtle">Account Summary</h5>
+                    
+                    <div class="profile-stat-box mb-3">
+                        <span class="text-secondary fw-700 small d-block mb-1">TOTAL ORDERS</span>
+                        <h2 id="profileOrdersCount" class="fw-800 text-success mb-0">0</h2>
+                    </div>
+                    
+                    <div class="profile-stat-box">
+                        <span class="text-secondary fw-700 small d-block mb-1">TOTAL SPENT</span>
+                        <h2 id="profileSpendCount" class="fw-800 text-primary mb-0">₹0.00</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Slide-in Cart Drawer Layout -->
+    <div class="cart-drawer-backdrop" id="cartDrawerBackdrop"></div>
+    <div class="cart-drawer" id="cartDrawer">
+        <div class="cart-drawer-header">
+            <h5 class="fw-800 text-secondary mb-0"><i class="bi bi-bag-heart text-success me-2"></i>My Cart</h5>
+            <button type="button" class="btn-close" id="cartCloseBtn" aria-label="Close"></button>
+        </div>
+        <div class="cart-drawer-body" id="cartDrawerBody">
+            <!-- Items loaded dynamically -->
+        </div>
+        <div class="cart-drawer-footer" id="cartDrawerFooter">
+            <div class="d-flex justify-content-between mb-2">
+                <span class="text-secondary fw-500">Subtotal</span>
+                <span class="fw-700" id="cartSubtotal">₹0.00</span>
+            </div>
+            <div class="d-flex justify-content-between mb-3">
+                <span class="text-secondary fw-500">GST (5%) & Delivery</span>
+                <span class="fw-700" id="cartTaxes">₹0.00</span>
+            </div>
+            <div class="d-flex justify-content-between mb-4 border-top pt-3 border-secondary-subtle">
+                <h5 class="fw-700 text-secondary mb-0">Grand Total</h5>
+                <h4 class="fw-800 text-success mb-0" id="cartGrandTotal">₹0.00</h4>
+            </div>
+            <button class="btn btn-premium w-100 py-3 fw-700" id="checkoutBtn" disabled>Proceed to Checkout</button>
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Navigation (Blinkit style) -->
+    <div class="mobile-bottom-nav d-md-none">
+        <a href="/customer/index.html" class="mobile-nav-item">
+            <i class="bi bi-house-door"></i>
+            <span>Home</span>
+        </a>
+        <a href="/customer/products.html" class="mobile-nav-item">
+            <i class="bi bi-search"></i>
+            <span>Search</span>
+        </a>
+        <a href="/customer/orders.html" class="mobile-nav-item">
+            <i class="bi bi-receipt"></i>
+            <span>Orders</span>
+        </a>
+        <a href="/customer/profile.html" class="mobile-nav-item active">
+            <i class="bi bi-person"></i>
+            <span>Profile</span>
+        </a>
+    </div>
+
+    <!-- JS Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/auth.js"></script>
+    <script src="/assets/js/products.js"></script>
+    <script src="/assets/js/cart.js"></script>
+    
+    <script>
+        let customersList = [];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Shrink navbar on scroll
+            const navbar = document.getElementById('mainNavbar');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 50) {
+                    navbar.classList.add('navbar-shrink');
+                } else {
+                    navbar.classList.remove('navbar-shrink');
+                }
+            });
+
+            await loadProfileData();
+            updateCartUI();
+
+            // Cart Drawer events
+            const cartToggle = document.getElementById('cartToggleBtn');
+            const backdrop = document.getElementById('cartDrawerBackdrop');
+            const drawer = document.getElementById('cartDrawer');
+            const cartClose = document.getElementById('cartCloseBtn');
+
+            cartToggle.addEventListener('click', () => {
+                drawer.classList.add('show');
+                backdrop.classList.add('show');
+                updateCartUI();
+            });
+
+            const closeDrawer = () => {
+                drawer.classList.remove('show');
+                backdrop.classList.remove('show');
+            };
+
+            cartClose.addEventListener('click', closeDrawer);
+            backdrop.addEventListener('click', closeDrawer);
+
+            // Listen to cart update event
+            window.addEventListener('cart-updated', () => {
+                updateCartUI();
+            });
+
+            // Bind profile switcher select
+            document.getElementById('profileSwitcherSelect').addEventListener('change', (e) => {
+                const id = e.target.value;
+                localStorage.setItem('active_customer_id', id);
+                
+                // Clear cart from previous customer and reload
+                window.location.reload();
+            });
+
+            // Handle Profile Save
+            document.getElementById('profileForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                await saveProfile();
+            });
+
+            // Theme toggler
+            document.getElementById('theme-toggle').addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('color-scheme', newTheme);
+            });
+
+            // Sign out
+            document.getElementById('customerSignOutBtn').addEventListener('click', (e) => {
+                e.preventDefault();
+                window.Auth.logout(false);
+            });
+        });
+
+        async function loadProfileData() {
+            try {
+                const res = await window.API.get('crud_handlers.php', { module: 'customers', action: 'list' });
+                if (res.success) {
+                    customersList = res.data;
+                    const select = document.getElementById('profileSwitcherSelect');
+                    select.innerHTML = '';
+                    
+                    const savedCustId = window.Cart.getCustomerId();
+                    
+                    res.data.forEach(c => {
+                        const isSelected = parseInt(c.Customer_ID) === parseInt(savedCustId);
+                        select.innerHTML += `<option value="${c.Customer_ID}" ${isSelected ? 'selected' : ''}>${c.Name}</option>`;
+                    });
+
+                    // Fetch active profile details
+                    const profileRes = await window.API.get('crud_handlers.php', { module: 'customers', action: 'get', id: savedCustId });
+                    if (profileRes.success && profileRes.data) {
+                        const cust = profileRes.data;
+                        document.getElementById('Customer_ID').value = cust.Customer_ID;
+                        document.getElementById('Registered_Date').value = cust.Registered_Date;
+                        document.getElementById('Name').value = cust.Name;
+                        document.getElementById('Email').value = cust.Email || '';
+                        document.getElementById('Phone').value = cust.Phone;
+                        document.getElementById('Address').value = cust.Address || '';
+
+                        // Stats
+                        document.getElementById('profileOrdersCount').textContent = cust.stats.OrderCount;
+                        
+                        const formatCurrency = new Intl.NumberFormat('en-IN', {
+                            style: 'currency',
+                            currency: 'INR'
+                        }).format(cust.stats.TotalSpent);
+                        document.getElementById('profileSpendCount').textContent = formatCurrency;
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function saveProfile() {
+            const form = document.getElementById('profileForm');
+            const formData = new FormData(form);
+            
+            try {
+                const saveBtn = document.getElementById('saveProfileBtn');
+                saveBtn.disabled = true;
+                saveBtn.textContent = 'Saving Profile...';
+                
+                const res = await window.API.post('crud_handlers.php?module=customers&action=save', formData);
+                if (res.success) {
+                    window.API.showToast(res.message, 'success');
+                    await loadProfileData();
+                } else {
+                    window.API.showToast(res.message || 'Failed to update profile', 'danger');
+                }
+            } catch (err) {
+                console.error(err);
+            } finally {
+                const saveBtn = document.getElementById('saveProfileBtn');
+                saveBtn.disabled = false;
+                saveBtn.textContent = 'Save Address Changes';
+            }
+        }
+
+        // --- Cart Drawer Updates ---
+        function updateCartUI() {
+            const count = window.Cart.getCount();
+            document.getElementById('cartBadgeCount').textContent = count;
+            
+            const tbody = document.getElementById('cartDrawerBody');
+            const items = window.Cart.getItems();
+            
+            tbody.innerHTML = '';
+            
+            if (items.length === 0) {
+                tbody.innerHTML = `
+                    <div class="py-5 text-center text-secondary">
+                        <i class="bi bi-cart3 fs-1 d-block mb-3 text-tertiary"></i>
+                        <h5>Your cart is empty</h5>
+                        <p class="small mb-0">Add fresh groceries to get started.</p>
+                    </div>
+                `;
+                document.getElementById('cartSubtotal').textContent = '₹0.00';
+                document.getElementById('cartTaxes').textContent = '₹0.00';
+                document.getElementById('cartGrandTotal').textContent = '₹0.00';
+                document.getElementById('checkoutBtn').disabled = true;
+                return;
+            }
+
+            items.forEach(item => {
+                const itemSub = item.Price * item.Quantity;
+                const fallbackHtml = window.Products.getProductPlaceholder(item.Category_Name);
+                const imgPath = `/uploads/product_${item.Product_ID}.jpg`;
+
+                tbody.innerHTML += `
+                    <div class="cart-item-row">
+                        <div class="cart-item-img">
+                            <img src="${imgPath}" onerror="this.outerHTML='${fallbackHtml.replace(/'/g, "\\'")}'">
+                        </div>
+                        <div class="cart-item-details">
+                            <div class="cart-item-title">${item.Product_Name}</div>
+                            <div class="d-flex align-items-center justify-content-between mt-2">
+                                <div class="qty-selector">
+                                    <button class="qty-btn" onclick="updateCartItemQty(${item.Product_ID}, ${item.Quantity - 1})">-</button>
+                                    <span class="qty-val">${item.Quantity}</span>
+                                    <button class="qty-btn" onclick="updateCartItemQty(${item.Product_ID}, ${item.Quantity + 1})">+</button>
+                                </div>
+                                <span class="cart-item-price">₹${parseFloat(itemSub).toFixed(2)}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Calculate summaries
+            const totals = window.Cart.getTotals();
+            document.getElementById('cartSubtotal').textContent = `₹${totals.subtotal.toFixed(2)}`;
+            
+            let taxDeliveryText = `₹${totals.tax.toFixed(2)}`;
+            if (totals.deliveryFee > 0) {
+                taxDeliveryText += ` (+ ₹${totals.deliveryFee.toFixed(2)} delivery)`;
+            } else {
+                taxDeliveryText += ` (Free delivery)`;
+            }
+            
+            document.getElementById('cartTaxes').textContent = taxDeliveryText;
+            document.getElementById('cartGrandTotal').textContent = `₹${totals.total.toFixed(2)}`;
+            document.getElementById('checkoutBtn').disabled = false;
+        }
+
+        function updateCartItemQty(id, qty) {
+            window.Cart.updateQty(id, qty);
+        }
+    </script>
+</body>
+</html>

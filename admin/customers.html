@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grocery Admin - Customers</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <!-- Global Stylesheets -->
+    <link href="/assets/css/styles.css" rel="stylesheet">
+    <link href="/assets/css/admin.css" rel="stylesheet">
+    <script>
+        const colorScheme = localStorage.getItem("color-scheme") || "light";
+        document.documentElement.setAttribute('data-theme', colorScheme);
+    </script>
+</head>
+<body class="admin-body">
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <a href="/admin/index.html" class="sidebar-brand">
+            <i class="bi bi-cart4"></i>
+            <span>GROCERY ADMIN</span>
+        </a>
+        <ul class="sidebar-menu">
+            <li class="sidebar-item">
+                <a href="/admin/index.html" class="sidebar-link">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="/admin/categories.html" class="sidebar-link">
+                    <i class="bi bi-tags"></i>
+                    <span>Categories</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="/admin/suppliers.html" class="sidebar-link">
+                    <i class="bi bi-truck"></i>
+                    <span>Suppliers</span>
+                </a>
+            </li>
+            <li class="sidebar-item active">
+                <a href="/admin/customers.html" class="sidebar-link">
+                    <i class="bi bi-people"></i>
+                    <span>Customers</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="/admin/products.html" class="sidebar-link">
+                    <i class="bi bi-box-seam"></i>
+                    <span>Products</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="/admin/orders.html" class="sidebar-link">
+                    <i class="bi bi-receipt"></i>
+                    <span>Orders</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="/admin/payments.html" class="sidebar-link">
+                    <i class="bi bi-credit-card"></i>
+                    <span>Payments</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="/admin/delivery_agents.html" class="sidebar-link">
+                    <i class="bi bi-bicycle"></i>
+                    <span>Delivery Agents</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="/admin/reports.html" class="sidebar-link">
+                    <i class="bi bi-graph-up-arrow"></i>
+                    <span>Reports</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Main Content Wrapper -->
+    <div class="admin-wrapper">
+        <!-- Top Navbar -->
+        <header class="top-navbar glass-effect">
+            <div class="d-flex align-items-center">
+                <button id="sidebar-toggler" class="btn border-0 sidebar-toggler px-2 text-primary" type="button">
+                    <i class="bi bi-list fs-3"></i>
+                </button>
+                <h4 class="mb-0 fw-700 text-primary">Customer Profiles</h4>
+            </div>
+            <div class="d-flex align-items-center gap-3 ms-auto">
+                <button id="theme-toggle" class="navbar-action-btn" title="Toggle Theme" type="button">
+                    <i class="bi bi-moon-fill"></i>
+                </button>
+                <div class="dropdown">
+                    <button class="btn border-0 d-flex align-items-center gap-2 p-1" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-600" style="width: 36px; height: 36px;">
+                            A
+                        </div>
+                        <span class="d-none d-md-inline fw-600 text-secondary" id="userDropdownName">Admin</span>
+                        <i class="bi bi-chevron-down text-secondary fs-8"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="profileDropdown">
+                        <li><a class="dropdown-item py-2" href="#" id="adminSignOutBtn"><i class="bi bi-box-arrow-right me-2 text-danger"></i> Sign Out</a></li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+
+        <main class="container-fluid p-4">
+            <!-- Table Card -->
+            <div class="card glass-effect border-0 admin-table-card">
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+                    <h5 class="fw-800 mb-0 text-secondary">Customers Directory</h5>
+                    <button type="button" class="btn btn-primary d-flex align-items-center gap-2" id="addNewBtn">
+                        <i class="bi bi-plus-lg"></i>
+                        <span>Add Customer</span>
+                    </button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle" id="customersTable" style="width:100%;">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Registered Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customersTableBody">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Customer Form Modal -->
+    <div class="modal fade" id="customerModal" tabindex="-1" aria-labelledby="customerModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content glass-effect border-0 shadow">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-800 text-primary" id="customerModalLabel">Add New Customer</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="customerForm">
+                    <div class="modal-body py-3">
+                        <input type="hidden" id="Customer_ID" name="Customer_ID" value="0">
+                        
+                        <div class="mb-3">
+                            <label for="Name" class="form-label fw-600">Full Name</label>
+                            <input type="text" class="form-control" id="Name" name="Name" placeholder="Enter customer's full name" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="Email" class="form-label fw-600">Email Address</label>
+                            <input type="email" class="form-control" id="Email" name="Email" placeholder="Enter email" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="Phone" class="form-label fw-600">Phone Number</label>
+                            <input type="text" class="form-control" id="Phone" name="Phone" placeholder="Enter phone contact" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="Address" class="form-label fw-600">Delivery Address</label>
+                            <textarea class="form-control" id="Address" name="Address" rows="2" placeholder="Enter shipping address"></textarea>
+                        </div>
+
+                        <div class="mb-2">
+                            <label for="Registered_Date" class="form-label fw-600">Registration Date</label>
+                            <input type="date" class="form-control" id="Registered_Date" name="Registered_Date" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 pt-0">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Profile</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Details & Order History Modal -->
+    <div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content glass-effect border-0 shadow">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-800 text-primary" id="detailsModalLabel">Customer Analytics & Order History</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body py-3">
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-6">
+                            <div class="card bg-tertiary border-0 text-center p-3">
+                                <h6 class="text-secondary fw-600 mb-1">Total Orders Placed</h6>
+                                <h3 id="detail-orders-count" class="fw-800 text-primary">0</h3>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card bg-tertiary border-0 text-center p-3">
+                                <h6 class="text-secondary fw-600 mb-1">Total Amount Spent</h6>
+                                <h3 id="detail-spend-count" class="fw-800 text-success">₹0.00</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h6 class="fw-700 text-secondary mb-3">Orders History</h6>
+                    <div class="table-responsive" style="max-height: 250px; overflow-y: auto;">
+                        <table class="table table-sm align-middle" style="width:100%;">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Order Date</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="detailOrdersBody">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close Details</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/auth.js"></script>
+    
+    <script>
+        let datatableInstance = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await refreshCustomersTable();
+
+            // Bind triggers
+            document.getElementById('addNewBtn').addEventListener('click', () => {
+                const today = new Date().toISOString().split('T')[0];
+                showCustomerModal(0, '', '', '', '', today);
+            });
+
+            document.getElementById('customerForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                await saveCustomer();
+            });
+
+            // Mobile sidebar toggler
+            const sidebarToggler = document.getElementById('sidebar-toggler');
+            const sidebar = document.querySelector('.sidebar');
+            if (sidebarToggler && sidebar) {
+                sidebarToggler.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    sidebar.classList.toggle('show');
+                });
+            }
+
+            // Theme toggler
+            document.getElementById('theme-toggle').addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('color-scheme', newTheme);
+            });
+
+            // Sign out
+            document.getElementById('adminSignOutBtn').addEventListener('click', (e) => {
+                e.preventDefault();
+                window.Auth.logout(true);
+            });
+        });
+
+        async function refreshCustomersTable() {
+            try {
+                const res = await window.API.get('crud_handlers.php', { module: 'customers', action: 'list' });
+                if (res.success) {
+                    const tbody = document.getElementById('customersTableBody');
+                    
+                    // Clear datatable
+                    if (datatableInstance) {
+                        datatableInstance.destroy();
+                    }
+                    
+                    tbody.innerHTML = '';
+                    
+                    res.data.forEach(c => {
+                        tbody.innerHTML += `
+                            <tr>
+                                <td><strong>#${c.Customer_ID}</strong></td>
+                                <td><span class="fw-700">${c.Name}</span></td>
+                                <td>${c.Email || 'No email'}</td>
+                                <td><i class="bi bi-telephone text-secondary me-2"></i>${c.Phone}</td>
+                                <td>${c.Registered_Date}</td>
+                                <td>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-sm btn-outline-info py-1 px-2.5" onclick="viewCustomer(${c.Customer_ID})" title="Order history">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-primary py-1 px-2.5" onclick="editCustomer(${c.Customer_ID})">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger py-1 px-2.5" onclick="deleteCustomer(${c.Customer_ID})">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    });
+
+                    // Initialize DataTable
+                    datatableInstance = $('#customersTable').DataTable({
+                        order: [[0, 'asc']],
+                        pageLength: 10,
+                        language: {
+                            search: "_INPUT_",
+                            searchPlaceholder: "Search customers..."
+                        }
+                    });
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function showCustomerModal(id = 0, name = '', email = '', phone = '', address = '', regDate = '') {
+            document.getElementById('Customer_ID').value = id;
+            document.getElementById('Name').value = name;
+            document.getElementById('Email').value = email;
+            document.getElementById('Phone').value = phone;
+            document.getElementById('Address').value = address;
+            document.getElementById('Registered_Date').value = regDate;
+            
+            document.getElementById('customerModalLabel').textContent = id > 0 ? 'Edit Customer Profile' : 'Add New Customer';
+            
+            const modal = new bootstrap.Modal(document.getElementById('customerModal'));
+            modal.show();
+        }
+
+        async function editCustomer(id) {
+            try {
+                const res = await window.API.get('crud_handlers.php', { module: 'customers', action: 'get', id: id });
+                if (res.success && res.data) {
+                    showCustomerModal(
+                        res.data.Customer_ID,
+                        res.data.Name,
+                        res.data.Email,
+                        res.data.Phone,
+                        res.data.Address,
+                        res.data.Registered_Date
+                    );
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function viewCustomer(id) {
+            try {
+                const res = await window.API.get('crud_handlers.php', { module: 'customers', action: 'get', id: id });
+                if (res.success && res.data) {
+                    const stats = res.data.stats;
+                    document.getElementById('detail-orders-count').textContent = stats.OrderCount;
+                    
+                    const formatCurrency = new Intl.NumberFormat('en-IN', {
+                        style: 'currency',
+                        currency: 'INR'
+                    }).format(stats.TotalSpent);
+                    document.getElementById('detail-spend-count').textContent = formatCurrency;
+
+                    // Bind orders list
+                    const tbody = document.getElementById('detailOrdersBody');
+                    tbody.innerHTML = '';
+                    if (res.data.orders && res.data.orders.length > 0) {
+                        res.data.orders.forEach(o => {
+                            let badge = 'bg-secondary';
+                            if (o.Status === 'Delivered') badge = 'bg-success';
+                            if (o.Status === 'Pending') badge = 'bg-warning text-dark';
+                            if (o.Status === 'Shipped') badge = 'bg-info';
+                            if (o.Status === 'Cancelled') badge = 'bg-danger';
+
+                            tbody.innerHTML += `
+                                <tr>
+                                    <td><strong>#${o.Order_ID}</strong></td>
+                                    <td>${o.Order_Date}</td>
+                                    <td class="fw-700">₹${parseFloat(o.Total_Amount).toFixed(2)}</td>
+                                    <td><span class="badge ${badge}">${o.Status}</span></td>
+                                </tr>
+                            `;
+                        });
+                    } else {
+                        tbody.innerHTML = '<tr><td colspan="4" class="text-center text-secondary py-3">No orders found in history.</td></tr>';
+                    }
+
+                    const modal = new bootstrap.Modal(document.getElementById('detailsModal'));
+                    modal.show();
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function saveCustomer() {
+            const form = document.getElementById('customerForm');
+            const formData = new FormData(form);
+            
+            try {
+                const res = await window.API.post('crud_handlers.php?module=customers&action=save', formData);
+                if (res.success) {
+                    window.API.showToast(res.message, 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('customerModal')).hide();
+                    await refreshCustomersTable();
+                } else {
+                    window.API.showToast(res.message || 'Failed to save customer', 'danger');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function deleteCustomer(id) {
+            if (confirm(`Are you sure you want to delete Customer #${id}?`)) {
+                try {
+                    const formData = new FormData();
+                    formData.append('id', id);
+                    const res = await window.API.post('crud_handlers.php?module=customers&action=delete', formData);
+                    if (res.success) {
+                        window.API.showToast(res.message, 'success');
+                        await refreshCustomersTable();
+                    } else {
+                        window.API.showToast(res.message || 'Failed to delete customer', 'danger');
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreshCart - Premium Instant Grocery Delivery</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Global Stylesheets -->
+    <link href="/assets/css/styles.css" rel="stylesheet">
+    <link href="/assets/css/customer.css" rel="stylesheet">
+    <script>
+        const colorScheme = localStorage.getItem("color-scheme") || "light";
+        document.documentElement.setAttribute('data-theme', colorScheme);
+    </script>
+</head>
+<body>
+
+    <!-- Sticky Navigation Header -->
+    <nav class="navbar navbar-expand-lg customer-navbar glass-effect" id="mainNavbar">
+        <div class="container">
+            <!-- Brand Logo -->
+            <a class="navbar-brand fw-800 text-success d-flex align-items-center gap-2" href="/customer/index.html" style="font-size: 1.6rem; letter-spacing: -0.03em;">
+                <i class="bi bi-cart4 text-success" style="font-size: 1.8rem;"></i>
+                <span style="font-family: var(--font-heading); font-weight: 800; color: var(--text-primary);">Fresh<span class="text-success">Cart</span></span>
+            </a>
+
+            <!-- Search Input -->
+            <div class="mx-lg-4 my-2 my-lg-0 flex-grow-1 d-none d-md-block" style="max-width: 520px;">
+                <form id="globalSearchForm" action="/customer/products.html">
+                    <div class="search-wrapper">
+                        <input type="text" class="search-input-premium" name="search" id="globalSearchInput" placeholder="Search fresh vegetables, organic fruits, breakfast items...">
+                        <i class="bi bi-search search-icon-left"></i>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Right Controls -->
+            <div class="d-flex align-items-center gap-3 ms-auto">
+                <!-- Theme Toggle -->
+                <button id="theme-toggle" class="navbar-action-btn" title="Toggle Theme" type="button">
+                    <i class="bi bi-moon-fill"></i>
+                </button>
+
+                <!-- Cart Button -->
+                <button class="btn cart-btn-premium position-relative" type="button" id="cartToggleBtn">
+                    <i class="bi bi-bag-heart me-1"></i>
+                    <span class="d-none d-md-inline">Cart</span>
+                    <span class="badge cart-badge" id="cartBadgeCount">0</span>
+                </button>
+
+                <!-- Profile Dropdown -->
+                <div class="dropdown">
+                    <button class="btn border-0 d-flex align-items-center gap-2 p-1" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center fw-700" style="width: 40px; height: 40px; border: 2px solid var(--border-color);" id="profileInitial">
+                            U
+                        </div>
+                        <span class="d-none d-lg-inline fw-600 text-secondary" id="userDropdownName">User</span>
+                        <i class="bi bi-chevron-down text-secondary fs-8 d-none d-lg-inline"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="profileDropdown">
+                        <li><a class="dropdown-item py-2 fw-600" href="/customer/profile.html"><i class="bi bi-person me-2 text-success"></i> My Profile</a></li>
+                        <li><a class="dropdown-item py-2 fw-600" href="/customer/orders.html"><i class="bi bi-bag-check me-2 text-success"></i> My Orders</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item py-2 fw-600 text-danger" href="#" id="customerSignOutBtn"><i class="bi bi-box-arrow-right me-2"></i> Sign Out</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="container my-4 pb-5">
+        
+        <!-- Mobile Search Bar (Visible only on small screens) -->
+        <div class="mb-4 d-md-none">
+            <form id="mobileSearchForm" action="/customer/products.html">
+                <div class="search-wrapper">
+                    <input type="text" class="search-input-premium" name="search" placeholder="Search vegetables, fruits, dairy...">
+                    <i class="bi bi-search search-icon-left"></i>
+                </div>
+            </form>
+        </div>
+
+        <!-- World Class Hero Section -->
+        <div class="hero-wrapper">
+            <div class="row align-items-center position-relative" style="z-index: 5;">
+                <div class="col-lg-7">
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        <span class="badge bg-success text-white fw-700 px-3 py-2 shadow-sm d-flex align-items-center gap-1.5"><i class="bi bi-lightning-charge-fill"></i> Superfast Delivery</span>
+                        <span class="badge bg-white text-dark fw-700 px-3 py-2 shadow-sm"><i class="bi bi-star-fill text-warning"></i> 4.9 Rating (50K+)</span>
+                    </div>
+                    <h1 class="fw-800 display-4 mb-3" style="font-family:var(--font-heading); letter-spacing: -0.03em; line-height: 1.15;">
+                        Fresh groceries delivered in <span class="text-success">10 minutes</span>.
+                    </h1>
+                    <p class="lead mb-4 text-secondary">
+                        Experience the future of grocery shopping. Get premium organic produce, dairy, bakery, and daily essentials sourced directly from local suppliers to your doorstep.
+                    </p>
+                    <div class="d-flex flex-wrap gap-3">
+                        <a href="/customer/products.html" class="btn btn-premium px-4 py-3 d-flex align-items-center gap-2">
+                            <span>Order Now</span>
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+                        <a href="#special-offers" class="btn btn-outline-premium px-4 py-3">
+                            <span>View Weekend Deals</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <!-- Floating graphics containers using beautiful emojis -->
+            <div class="floating-graphics-container">
+                <div class="floating-graphic-item">🍎</div>
+                <div class="floating-graphic-item">🥬</div>
+                <div class="floating-graphic-item">🍞</div>
+                <div class="floating-graphic-item">🥛</div>
+            </div>
+        </div>
+
+        <!-- Category Bubble Section -->
+        <div class="category-scroller-container">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <h3 class="fw-800 mb-0">Shop by Category</h3>
+                <a href="/customer/products.html" class="text-success fw-700 text-decoration-none d-flex align-items-center gap-1">View All <i class="bi bi-arrow-right"></i></a>
+            </div>
+            <div class="category-scroller" id="categoriesScroller">
+                <!-- Skeleton categories loaders -->
+                <div class="category-bubble-card skeleton-pulse" style="width:105px; height:120px;"></div>
+                <div class="category-bubble-card skeleton-pulse" style="width:105px; height:120px;"></div>
+                <div class="category-bubble-card skeleton-pulse" style="width:105px; height:120px;"></div>
+                <div class="category-bubble-card skeleton-pulse" style="width:105px; height:120px;"></div>
+                <div class="category-bubble-card skeleton-pulse" style="width:105px; height:120px;"></div>
+                <div class="category-bubble-card skeleton-pulse" style="width:105px; height:120px;"></div>
+            </div>
+        </div>
+
+        <!-- Dynamic Offers Section -->
+        <div class="row g-4 mb-5" id="special-offers">
+            <div class="col-md-4">
+                <div class="offer-banner-premium summer">
+                    <span class="badge bg-white text-dark fw-800 mb-2">Summer Sale</span>
+                    <h3 class="fw-800 text-white mb-2">Up to 30% OFF</h3>
+                    <p class="mb-4 text-white-50">Beat the heat with fresh beverages and juicy melons.</p>
+                    <a href="/customer/products.html?search=Beverage" class="btn btn-sm btn-light text-success fw-700 px-3 py-2">Claim Offer</a>
+                    <div class="offer-illustration">🍉</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="offer-banner-premium festival">
+                    <span class="badge bg-white text-dark fw-800 mb-2">Fruits Festival</span>
+                    <h3 class="fw-800 text-white mb-2">Flat ₹100 Cashback</h3>
+                    <p class="mb-4 text-white-50">On order of organic farm-fresh seasonal fruits.</p>
+                    <a href="/customer/products.html?search=Fruit" class="btn btn-sm btn-light text-danger fw-700 px-3 py-2">Claim Offer</a>
+                    <div class="offer-illustration">🥭</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="offer-banner-premium weekend">
+                    <span class="badge bg-white text-dark fw-800 mb-2">Weekend Special</span>
+                    <h3 class="fw-800 text-white mb-2">Free Fast Delivery</h3>
+                    <p class="mb-4 text-white-50">No minimum delivery charge across bakery items.</p>
+                    <a href="/customer/products.html?search=Bakery" class="btn btn-sm btn-light text-primary fw-700 px-3 py-2">Claim Offer</a>
+                    <div class="offer-illustration">🥐</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Featured Products Section -->
+        <div class="mb-5">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <div>
+                    <h3 class="fw-800 mb-1">Featured Groceries</h3>
+                    <p class="text-secondary small mb-0">Our highly recommended items sourced fresh</p>
+                </div>
+                <a href="/customer/products.html" class="btn btn-outline-premium d-flex align-items-center gap-1.5 px-3 py-2">
+                    <span>Explore All</span>
+                    <i class="bi bi-arrow-right-short"></i>
+                </a>
+            </div>
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4" id="featuredProductsContainer">
+                <!-- Skeletons -->
+                <div class="col"><div class="card skeleton-pulse" style="height: 320px;"></div></div>
+                <div class="col"><div class="card skeleton-pulse" style="height: 320px;"></div></div>
+                <div class="col"><div class="card skeleton-pulse" style="height: 320px;"></div></div>
+                <div class="col"><div class="card skeleton-pulse" style="height: 320px;"></div></div>
+            </div>
+        </div>
+
+        <!-- Best Sellers (Slider) -->
+        <div class="slider-container-premium">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <div>
+                    <h3 class="fw-800 mb-1">Best Sellers</h3>
+                    <p class="text-secondary small mb-0">Locally loved products purchased frequently</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="slider-btn slider-btn-prev" id="sliderPrevBtn" aria-label="Previous"><i class="bi bi-chevron-left"></i></button>
+                    <button class="slider-btn slider-btn-next" id="sliderNextBtn" aria-label="Next"><i class="bi bi-chevron-right"></i></button>
+                </div>
+            </div>
+            <div class="slider-wrapper-premium" id="bestSellersContainer">
+                <!-- Filled dynamically with product cards -->
+            </div>
+        </div>
+
+        <!-- Recommended For You Section -->
+        <div class="mb-5">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <div>
+                    <h3 class="fw-800 mb-1">Recommended For You</h3>
+                    <p class="text-secondary small mb-0">Tailored suggestions based on shopping trends</p>
+                </div>
+            </div>
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4" id="recommendedProductsContainer">
+                <!-- Populated dynamically -->
+            </div>
+        </div>
+
+        <!-- Trust Section -->
+        <div class="mb-5">
+            <h3 class="fw-800 text-center mb-5">Why Choose FreshCart?</h3>
+            <div class="row g-4">
+                <div class="col-md-3">
+                    <div class="trust-card-premium">
+                        <div class="trust-icon-box">
+                            <i class="bi bi-check-circle"></i>
+                        </div>
+                        <h5 class="fw-700">Freshness Guaranteed</h5>
+                        <p class="text-secondary small mb-0">100% organic farm fresh products or full refund. No questions asked.</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="trust-card-premium">
+                        <div class="trust-icon-box">
+                            <i class="bi bi-lightning-charge"></i>
+                        </div>
+                        <h5 class="fw-700">10-Minute Delivery</h5>
+                        <p class="text-secondary small mb-0">Locally placed dark stores guarantee rapid arrival of daily groceries.</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="trust-card-premium">
+                        <div class="trust-icon-box">
+                            <i class="bi bi-shield-lock"></i>
+                        </div>
+                        <h5 class="fw-700">Secure Checkout</h5>
+                        <p class="text-secondary small mb-0">Stripe and UPI integrations secure your payment details at all steps.</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="trust-card-premium">
+                        <div class="trust-icon-box">
+                            <i class="bi bi-arrow-left-right"></i>
+                        </div>
+                        <h5 class="fw-700">Easy Returns</h5>
+                        <p class="text-secondary small mb-0">Not satisfied with the quality? Hand it back directly to the delivery rider.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer Testimonials -->
+        <div class="mb-5">
+            <h3 class="fw-800 text-center mb-5">Loved By Happy Customers</h3>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="review-card-premium">
+                        <i class="bi bi-quote quote-icon"></i>
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="bg-success-subtle text-success rounded-circle d-flex align-items-center justify-content-center fw-700" style="width: 48px; height: 48px;">
+                                AK
+                            </div>
+                            <div>
+                                <h6 class="fw-700 mb-0">Amit Kumar</h6>
+                                <div class="text-warning small"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
+                            </div>
+                        </div>
+                        <p class="text-secondary small mb-0">"Instantly delivered within 8 minutes! The spinach and tomatoes were extremely fresh, almost like they were just picked."</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="review-card-premium">
+                        <i class="bi bi-quote quote-icon"></i>
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="bg-success-subtle text-success rounded-circle d-flex align-items-center justify-content-center fw-700" style="width: 48px; height: 48px;">
+                                RS
+                            </div>
+                            <div>
+                                <h6 class="fw-700 mb-0">Riya Sharma</h6>
+                                <div class="text-warning small"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
+                            </div>
+                        </div>
+                        <p class="text-secondary small mb-0">"The dark mode visual elements look stunning. Navigating categories on mobile is fluid and ordering takes under 10 seconds."</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="review-card-premium">
+                        <i class="bi bi-quote quote-icon"></i>
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="bg-success-subtle text-success rounded-circle d-flex align-items-center justify-content-center fw-700" style="width: 48px; height: 48px;">
+                                SM
+                            </div>
+                            <div>
+                                <h6 class="fw-700 mb-0">Sanjay Mehta</h6>
+                                <div class="text-warning small"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
+                            </div>
+                        </div>
+                        <p class="text-secondary small mb-0">"Top-tier packaging and customer service. Returning an incorrect order item was entirely smooth and handled immediately."</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Slide-in Cart Drawer Layout -->
+    <div class="cart-drawer-backdrop" id="cartDrawerBackdrop"></div>
+    <div class="cart-drawer" id="cartDrawer">
+        <div class="cart-drawer-header">
+            <h5 class="fw-800 text-secondary mb-0"><i class="bi bi-bag-heart text-success me-2"></i>My Cart</h5>
+            <button type="button" class="btn-close" id="cartCloseBtn" aria-label="Close"></button>
+        </div>
+        <div class="cart-drawer-body" id="cartDrawerBody">
+            <!-- Items loaded dynamically -->
+        </div>
+        <div class="cart-drawer-footer" id="cartDrawerFooter">
+            <div class="d-flex justify-content-between mb-2">
+                <span class="text-secondary fw-500">Subtotal</span>
+                <span class="fw-700" id="cartSubtotal">₹0.00</span>
+            </div>
+            <div class="d-flex justify-content-between mb-3">
+                <span class="text-secondary fw-500">GST (5%) & Delivery</span>
+                <span class="fw-700" id="cartTaxes">₹0.00</span>
+            </div>
+            <div class="d-flex justify-content-between mb-4 border-top pt-3 border-secondary-subtle">
+                <h5 class="fw-700 text-secondary mb-0">Grand Total</h5>
+                <h4 class="fw-800 text-success mb-0" id="cartGrandTotal">₹0.00</h4>
+            </div>
+            <button class="btn btn-premium w-100 py-3 fw-700" id="checkoutBtn" disabled>Proceed to Checkout</button>
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Navigation (Blinkit style) -->
+    <div class="mobile-bottom-nav d-md-none">
+        <a href="/customer/index.html" class="mobile-nav-item active">
+            <i class="bi bi-house-door"></i>
+            <span>Home</span>
+        </a>
+        <a href="/customer/products.html" class="mobile-nav-item">
+            <i class="bi bi-search"></i>
+            <span>Search</span>
+        </a>
+        <a href="/customer/orders.html" class="mobile-nav-item">
+            <i class="bi bi-receipt"></i>
+            <span>Orders</span>
+        </a>
+        <a href="/customer/profile.html" class="mobile-nav-item">
+            <i class="bi bi-person"></i>
+            <span>Profile</span>
+        </a>
+        <a href="#" class="mobile-nav-item" id="mobileCartTrigger">
+            <i class="bi bi-bag-heart"></i>
+            <span>Cart</span>
+        </a>
+    </div>
+
+    <!-- Mobile Floating Quick Cart Badge -->
+    <a href="#" class="mobile-floating-cart-badge" id="mobileFloatingCart">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-bag-check fs-5"></i>
+            <div>
+                <span class="fw-800 d-block" id="mobileCartItemCount">0 Items</span>
+                <span class="small opacity-75" id="mobileCartTotalAmount">₹0.00</span>
+            </div>
+        </div>
+        <div class="fw-800 d-flex align-items-center gap-1">
+            <span>View Cart</span>
+            <i class="bi bi-chevron-right"></i>
+        </div>
+    </a>
+
+    <!-- Footer -->
+    <footer class="footer-premium">
+        <div class="container">
+            <div class="row g-4 mb-5 text-start">
+                <div class="col-lg-4">
+                    <a class="fw-800 text-success d-flex align-items-center gap-2 mb-3 text-decoration-none" href="/customer/index.html" style="font-size: 1.6rem; letter-spacing: -0.03em;">
+                        <i class="bi bi-cart4 text-success" style="font-size: 1.8rem;"></i>
+                        <span style="font-family: var(--font-heading); font-weight: 800; color: #ffffff;">Fresh<span class="text-success">Cart</span></span>
+                    </a>
+                    <p class="small text-white-50">Premium grocery items delivered instantly in 10 minutes. Sourced directly from certified suppliers to your kitchen.</p>
+                    <div class="d-flex mt-4">
+                        <a href="#" class="social-circle-btn"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="social-circle-btn"><i class="bi bi-twitter-x"></i></a>
+                        <a href="#" class="social-circle-btn"><i class="bi bi-instagram"></i></a>
+                        <a href="#" class="social-circle-btn"><i class="bi bi-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-4 col-lg-2">
+                    <h5>Company</h5>
+                    <a href="#" class="footer-link">About Us</a>
+                    <a href="#" class="footer-link">Careers</a>
+                    <a href="#" class="footer-link">Press & Media</a>
+                    <a href="#" class="footer-link">Suppliers Login</a>
+                </div>
+                <div class="col-md-4 col-lg-3">
+                    <h5>Support & Policy</h5>
+                    <a href="#" class="footer-link">Help & Customer Support</a>
+                    <a href="#" class="footer-link">Terms & Conditions</a>
+                    <a href="#" class="footer-link">Privacy Policy</a>
+                    <a href="#" class="footer-link">Refund & Cancellation</a>
+                </div>
+                <div class="col-md-4 col-lg-3">
+                    <h5>Download Our App</h5>
+                    <p class="small text-white-50 mb-3">Order groceries faster with our premium mobile application.</p>
+                    <div class="d-flex flex-column align-items-start">
+                        <a href="#" class="app-badge-btn">
+                            <i class="bi bi-apple fs-4 me-2"></i>
+                            <div class="text-start">
+                                <span class="d-block" style="font-size: 0.65rem; opacity: 0.8;">Download on the</span>
+                                <span class="fw-700" style="font-size: 0.85rem; line-height: 1;">App Store</span>
+                            </div>
+                        </a>
+                        <a href="#" class="app-badge-btn">
+                            <i class="bi bi-play-fill fs-4 me-2"></i>
+                            <div class="text-start">
+                                <span class="d-block" style="font-size: 0.65rem; opacity: 0.8;">Get it on</span>
+                                <span class="fw-700" style="font-size: 0.85rem; line-height: 1;">Google Play</span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <hr style="border-color: rgba(255,255,255,0.1);" class="my-4">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center text-white-50 small">
+                <p class="mb-0">&copy; 2026 FreshCart Storefront. All rights reserved.</p>
+                <div class="d-flex gap-3 mt-2 mt-md-0">
+                    <span>Made with <i class="bi bi-heart-fill text-danger"></i> for Premium Quality Storefronts</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JS Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/auth.js"></script>
+    <script src="/assets/js/products.js"></script>
+    <script src="/assets/js/cart.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check session and load components
+            await loadCategories();
+            await loadProducts();
+            updateCartUI();
+
+            // Shrink navbar on scroll
+            const navbar = document.getElementById('mainNavbar');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 50) {
+                    navbar.classList.add('navbar-shrink');
+                } else {
+                    navbar.classList.remove('navbar-shrink');
+                }
+            });
+
+            // Cart Drawer events
+            const cartToggle = document.getElementById('cartToggleBtn');
+            const mobileCartTrigger = document.getElementById('mobileCartTrigger');
+            const mobileFloatingCart = document.getElementById('mobileFloatingCart');
+            const cartClose = document.getElementById('cartCloseBtn');
+            const backdrop = document.getElementById('cartDrawerBackdrop');
+            const drawer = document.getElementById('cartDrawer');
+
+            const openDrawer = (e) => {
+                if(e) e.preventDefault();
+                drawer.classList.add('show');
+                backdrop.classList.add('show');
+                updateCartUI();
+            };
+
+            const closeDrawer = () => {
+                drawer.classList.remove('show');
+                backdrop.classList.remove('show');
+            };
+
+            cartToggle.addEventListener('click', openDrawer);
+            if(mobileCartTrigger) mobileCartTrigger.addEventListener('click', openDrawer);
+            if(mobileFloatingCart) mobileFloatingCart.addEventListener('click', openDrawer);
+            cartClose.addEventListener('click', closeDrawer);
+            backdrop.addEventListener('click', closeDrawer);
+
+            // Listen to cart update event
+            window.addEventListener('cart-updated', () => {
+                updateCartUI();
+            });
+
+            // Theme toggler
+            document.getElementById('theme-toggle').addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('color-scheme', newTheme);
+            });
+
+            // Checkout btn click
+            document.getElementById('checkoutBtn').addEventListener('click', () => {
+                window.location.href = '/customer/checkout.html';
+            });
+
+            // Sign out
+            document.getElementById('customerSignOutBtn').addEventListener('click', (e) => {
+                e.preventDefault();
+                window.Auth.logout(false);
+            });
+
+            // Horizontal Best Sellers Slider Scroll Events
+            const slider = document.getElementById('bestSellersContainer');
+            const prevBtn = document.getElementById('sliderPrevBtn');
+            const nextBtn = document.getElementById('sliderNextBtn');
+
+            if(slider && prevBtn && nextBtn) {
+                prevBtn.addEventListener('click', () => {
+                    slider.scrollBy({ left: -320, behavior: 'smooth' });
+                });
+                nextBtn.addEventListener('click', () => {
+                    slider.scrollBy({ left: 320, behavior: 'smooth' });
+                });
+            }
+        });
+
+        async function loadCategories() {
+            try {
+                const categories = await window.Products.fetchCategories();
+                const scroller = document.getElementById('categoriesScroller');
+                scroller.innerHTML = '';
+                
+                categories.forEach(c => {
+                    const iconClass = window.Products.getCategoryIcon(c.Category_Name);
+                    scroller.innerHTML += `
+                        <a href="/customer/products.html?category=${c.Category_ID}" class="category-bubble-card">
+                            <div class="category-bubble-icon">
+                                <i class="bi ${iconClass}"></i>
+                            </div>
+                            <span>${c.Category_Name}</span>
+                        </a>
+                    `;
+                });
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function loadProducts() {
+            try {
+                const products = await window.Products.fetchAll();
+                
+                // Featured container (8 items)
+                const featContainer = document.getElementById('featuredProductsContainer');
+                featContainer.innerHTML = '';
+                
+                // Best Sellers (slider wrapper)
+                const bestContainer = document.getElementById('bestSellersContainer');
+                bestContainer.innerHTML = '';
+
+                // Recommended products (4 items)
+                const recContainer = document.getElementById('recommendedProductsContainer');
+                if (recContainer) recContainer.innerHTML = '';
+
+                if (products.length === 0) {
+                    const emptyHtml = `
+                        <div class="col-12 py-5 text-center">
+                            <div class="border-0">
+                                <i class="bi bi-box-seam fs-1 text-tertiary"></i>
+                                <h5 class="mt-3">No Products Found</h5>
+                            </div>
+                        </div>
+                    `;
+                    featContainer.innerHTML = emptyHtml;
+                    bestContainer.innerHTML = emptyHtml;
+                    if (recContainer) recContainer.innerHTML = emptyHtml;
+                    return;
+                }
+
+                // Render Featured (first 8)
+                products.slice(0, 8).forEach(p => {
+                    featContainer.appendChild(createProductCard(p));
+                });
+
+                // Render Best Sellers (middle 8 items in the horizontal scroller)
+                products.slice(2, 10).forEach(p => {
+                    const card = createProductCard(p);
+                    card.style.flex = "0 0 280px";
+                    bestContainer.appendChild(card);
+                });
+
+                // Render Recommended (random items or simple slice)
+                if (recContainer) {
+                    products.slice(4, 8).forEach(p => {
+                        recContainer.appendChild(createProductCard(p));
+                    });
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function createProductCard(p) {
+            const col = document.createElement('div');
+            col.className = 'col';
+
+            const outOfStock = parseInt(p.Stock) <= 0;
+            const fallbackHtml = window.Products.getProductPlaceholder(p.Category_Name);
+            const imgPath = `/uploads/product_${p.Product_ID}.jpg`;
+
+            // Calculate mock discount based on product ID odd/even to look dynamic
+            const hasDiscount = (p.Product_ID % 3 === 0);
+            const discountPct = (p.Product_ID % 2 === 0) ? 10 : 15;
+            const discountBadge = hasDiscount ? `<div class="product-badge-discount">SAVE ${discountPct}%</div>` : '';
+            const oldPrice = hasDiscount ? `<span class="text-decoration-line-through text-tertiary small me-1">₹${(p.Price * 1.15).toFixed(2)}</span>` : '';
+            
+            // Random rating between 4.5 and 4.9
+            const rating = (4.5 + (p.Product_ID % 5) * 0.1).toFixed(1);
+
+            col.innerHTML = `
+                <div class="product-grid-card">
+                    ${discountBadge}
+                    <button class="wishlist-btn" onclick="toggleWishlist(this, ${p.Product_ID})" aria-label="Add to Wishlist">
+                        <i class="bi bi-heart"></i>
+                    </button>
+                    <div class="product-image-container cursor-pointer" onclick="goToDetails(${p.Product_ID})">
+                        <img src="${imgPath}" onerror="this.outerHTML='${fallbackHtml.replace(/'/g, "\\'")}'" alt="${p.Product_Name}">
+                        <div class="product-eta-badge">
+                            <i class="bi bi-lightning-fill text-warning"></i>
+                            <span>10 MINS</span>
+                        </div>
+                    </div>
+                    <div class="product-category">${p.Category_Name}</div>
+                    <div class="product-title" onclick="goToDetails(${p.Product_ID})">${p.Product_Name}</div>
+                    <div class="product-rating-bar">
+                        <i class="bi bi-star-fill"></i>
+                        <span>${rating}</span>
+                        <span class="text-tertiary">(${p.Product_ID * 12 + 8})</span>
+                    </div>
+                    <div class="product-price-action">
+                        <div class="product-price-container">
+                            <span class="product-price">${oldPrice}₹${parseFloat(p.Price).toFixed(2)}</span>
+                            <span class="product-weight">1 unit / pkg</span>
+                        </div>
+                        ${outOfStock ? `
+                            <button class="btn btn-sm btn-outline-secondary" disabled>Sold Out</button>
+                        ` : `
+                            <button class="btn btn-add-cart-premium" onclick="addToCart(event, ${p.Product_ID})">
+                                <i class="bi bi-plus-lg"></i><span>Add</span>
+                            </button>
+                        `}
+                    </div>
+                </div>
+            `;
+            return col;
+        }
+
+        function goToDetails(id) {
+            window.location.href = `/customer/product-details.html?id=${id}`;
+        }
+
+        function toggleWishlist(btn, id) {
+            btn.classList.toggle('active');
+            const icon = btn.querySelector('i');
+            if (btn.classList.contains('active')) {
+                icon.className = 'bi bi-heart-fill';
+                window.API.showToast('Item added to wishlist!', 'success');
+            } else {
+                icon.className = 'bi bi-heart';
+                window.API.showToast('Item removed from wishlist.', 'info');
+            }
+        }
+
+        async function addToCart(e, id) {
+            e.stopPropagation();
+            try {
+                const product = await window.Products.fetchDetails(id);
+                if (product) {
+                    window.Cart.add(product, 1);
+                    window.API.showToast(`${product.Product_Name} added to cart!`, 'success');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // --- Cart UI Drawer Updates ---
+        function updateCartUI() {
+            const count = window.Cart.getCount();
+            document.getElementById('cartBadgeCount').textContent = count;
+            
+            // Mobile UI Sync
+            const mobileCount = document.getElementById('mobileCartItemCount');
+            const mobileTotal = document.getElementById('mobileCartTotalAmount');
+            const mobileFloatingCart = document.getElementById('mobileFloatingCart');
+            
+            const tbody = document.getElementById('cartDrawerBody');
+            const items = window.Cart.getItems();
+            
+            tbody.innerHTML = '';
+            
+            if (items.length === 0) {
+                tbody.innerHTML = `
+                    <div class="py-5 text-center text-secondary">
+                        <i class="bi bi-bag-x fs-1 d-block mb-3 text-tertiary"></i>
+                        <h5>Your cart is empty</h5>
+                        <p class="small mb-0">Add fresh groceries to get started.</p>
+                    </div>
+                `;
+                document.getElementById('cartSubtotal').textContent = '₹0.00';
+                document.getElementById('cartTaxes').textContent = '₹0.00';
+                document.getElementById('cartGrandTotal').textContent = '₹0.00';
+                document.getElementById('checkoutBtn').disabled = true;
+                
+                if (mobileFloatingCart) mobileFloatingCart.classList.remove('show');
+                return;
+            }
+
+            items.forEach(item => {
+                const itemSub = item.Price * item.Quantity;
+                const fallbackHtml = window.Products.getProductPlaceholder(item.Category_Name);
+                const imgPath = `/uploads/product_${item.Product_ID}.jpg`;
+
+                tbody.innerHTML += `
+                    <div class="cart-item-row">
+                        <div class="cart-item-img">
+                            <img src="${imgPath}" onerror="this.outerHTML='${fallbackHtml.replace(/'/g, "\\'")}'">
+                        </div>
+                        <div class="cart-item-details">
+                            <div class="cart-item-title">${item.Product_Name}</div>
+                            <div class="d-flex align-items-center justify-content-between mt-2">
+                                <div class="qty-selector">
+                                    <button class="qty-btn" onclick="updateCartItemQty(${item.Product_ID}, ${item.Quantity - 1})">-</button>
+                                    <span class="qty-val">${item.Quantity}</span>
+                                    <button class="qty-btn" onclick="updateCartItemQty(${item.Product_ID}, ${item.Quantity + 1})">+</button>
+                                </div>
+                                <span class="cart-item-price">₹${parseFloat(itemSub).toFixed(2)}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Calculate summaries
+            const totals = window.Cart.getTotals();
+            document.getElementById('cartSubtotal').textContent = `₹${totals.subtotal.toFixed(2)}`;
+            
+            let taxDeliveryText = `₹${totals.tax.toFixed(2)}`;
+            if (totals.deliveryFee > 0) {
+                taxDeliveryText += ` (+ ₹${totals.deliveryFee.toFixed(2)} delivery)`;
+            } else {
+                taxDeliveryText += ` (Free delivery)`;
+            }
+            
+            document.getElementById('cartTaxes').textContent = taxDeliveryText;
+            document.getElementById('cartGrandTotal').textContent = `₹${totals.total.toFixed(2)}`;
+            document.getElementById('checkoutBtn').disabled = false;
+
+            // Mobile Floating Cart Sync
+            if (mobileCount && mobileTotal && mobileFloatingCart) {
+                mobileCount.textContent = `${count} ${count === 1 ? 'Item' : 'Items'}`;
+                mobileTotal.textContent = `₹${totals.total.toFixed(2)}`;
+                mobileFloatingCart.classList.add('show');
+            }
+        }
+
+        function updateCartItemQty(id, qty) {
+            window.Cart.updateQty(id, qty);
+        }
+    </script>
+</body>
+</html>

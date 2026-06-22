@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grocery Admin - Dashboard</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Global Stylesheets -->
+    <link href="/assets/css/styles.css" rel="stylesheet">
+    <link href="/assets/css/admin.css" rel="stylesheet">
+    <script>
+        const colorScheme = localStorage.getItem("color-scheme") || "light";
+        document.documentElement.setAttribute('data-theme', colorScheme);
+    </script>
+</head>
+<body class="admin-body">
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <a href="/admin/index.html" class="sidebar-brand">
+            <i class="bi bi-cart4"></i>
+            <span>GROCERY ADMIN</span>
+        </a>
+        <ul class="sidebar-menu">
+            <li class="sidebar-item active">
+                <a href="/admin/index.html" class="sidebar-link">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="/admin/categories.html" class="sidebar-link">
+                    <i class="bi bi-tags"></i>
+                    <span>Categories</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="/admin/suppliers.html" class="sidebar-link">
+                    <i class="bi bi-truck"></i>
+                    <span>Suppliers</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="/admin/customers.html" class="sidebar-link">
+                    <i class="bi bi-people"></i>
+                    <span>Customers</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="/admin/products.html" class="sidebar-link">
+                    <i class="bi bi-box-seam"></i>
+                    <span>Products</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="/admin/orders.html" class="sidebar-link">
+                    <i class="bi bi-receipt"></i>
+                    <span>Orders</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="/admin/payments.html" class="sidebar-link">
+                    <i class="bi bi-credit-card"></i>
+                    <span>Payments</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="/admin/delivery_agents.html" class="sidebar-link">
+                    <i class="bi bi-bicycle"></i>
+                    <span>Delivery Agents</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="/admin/reports.html" class="sidebar-link">
+                    <i class="bi bi-graph-up-arrow"></i>
+                    <span>Reports</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Main Content Wrapper -->
+    <div class="admin-wrapper">
+        <!-- Top Navbar -->
+        <header class="top-navbar glass-effect">
+            <div class="d-flex align-items-center">
+                <button id="sidebar-toggler" class="btn border-0 sidebar-toggler px-2 text-primary" type="button">
+                    <i class="bi bi-list fs-3"></i>
+                </button>
+                <h4 class="mb-0 fw-700 text-primary">Dashboard Overview</h4>
+            </div>
+            
+            <div class="d-flex align-items-center gap-3 ms-auto">
+                <!-- Theme Toggle -->
+                <button id="theme-toggle" class="navbar-action-btn" title="Toggle Theme" type="button">
+                    <i class="bi bi-moon-fill"></i>
+                </button>
+                
+                <!-- Admin Dropdown -->
+                <div class="dropdown">
+                    <button class="btn border-0 d-flex align-items-center gap-2 p-1" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-600" style="width: 36px; height: 36px;" id="profileInitial">
+                            A
+                        </div>
+                        <span class="d-none d-md-inline fw-600 text-secondary" id="userDropdownName">Admin</span>
+                        <i class="bi bi-chevron-down text-secondary fs-8"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="profileDropdown">
+                        <li><a class="dropdown-item py-2" href="#" id="adminSignOutBtn"><i class="bi bi-box-arrow-right me-2 text-danger"></i> Sign Out</a></li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Body Grid -->
+        <main class="container-fluid p-4">
+            <!-- KPI Cards Row -->
+            <div class="row g-4 mb-4">
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <div class="card glass-effect metric-card border-0">
+                        <div class="metric-info">
+                            <h6>Total Revenue</h6>
+                            <h3 id="stat-revenue" class="fw-800 text-primary">₹0.00</h3>
+                        </div>
+                        <div class="metric-icon-wrapper primary ms-auto">
+                            <i class="bi bi-currency-rupee"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <div class="card glass-effect metric-card border-0">
+                        <div class="metric-info">
+                            <h6>Total Orders</h6>
+                            <h3 id="stat-orders" class="fw-800">0</h3>
+                        </div>
+                        <div class="metric-icon-wrapper success ms-auto">
+                            <i class="bi bi-receipt"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <div class="card glass-effect metric-card border-0">
+                        <div class="metric-info">
+                            <h6>Total Products</h6>
+                            <h3 id="stat-products" class="fw-800">0</h3>
+                        </div>
+                        <div class="metric-icon-wrapper warning ms-auto">
+                            <i class="bi bi-box-seam"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <div class="card glass-effect metric-card border-0">
+                        <div class="metric-info">
+                            <h6>Total Customers</h6>
+                            <h3 id="stat-customers" class="fw-800">0</h3>
+                        </div>
+                        <div class="metric-icon-wrapper info ms-auto">
+                            <i class="bi bi-people"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lower KPIs Row -->
+            <div class="row g-4 mb-4">
+                <div class="col-12 col-md-4">
+                    <div class="card glass-effect metric-card border-0 py-3">
+                        <div class="metric-info">
+                            <h6>Categories</h6>
+                            <h3 id="stat-categories" class="fw-700">0</h3>
+                        </div>
+                        <div class="metric-icon-wrapper primary ms-auto">
+                            <i class="bi bi-tags"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="card glass-effect metric-card border-0 py-3">
+                        <div class="metric-info">
+                            <h6>Suppliers</h6>
+                            <h3 id="stat-suppliers" class="fw-700">0</h3>
+                        </div>
+                        <div class="metric-icon-wrapper success ms-auto">
+                            <i class="bi bi-truck"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="card glass-effect metric-card border-0 py-3">
+                        <div class="metric-info">
+                            <h6>Delivery Agents</h6>
+                            <h3 id="stat-agents" class="fw-700">0</h3>
+                        </div>
+                        <div class="metric-icon-wrapper info ms-auto">
+                            <i class="bi bi-bicycle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Panels -->
+            <div class="row g-4 mb-4">
+                <div class="col-12 col-xl-8">
+                    <div class="card glass-effect border-0 p-4">
+                        <h5 class="fw-700 mb-3 text-secondary">Revenue Analytics</h5>
+                        <div class="chart-container">
+                            <canvas id="revenueChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-xl-4">
+                    <div class="card glass-effect border-0 p-4">
+                        <h5 class="fw-700 mb-3 text-secondary">Orders Analytics</h5>
+                        <div class="chart-container">
+                            <canvas id="ordersChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-12 col-md-4">
+                    <div class="card glass-effect border-0 p-4">
+                        <h5 class="fw-700 mb-3 text-secondary">Top Products</h5>
+                        <div class="chart-container">
+                            <canvas id="topProductsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="card glass-effect border-0 p-4">
+                        <h5 class="fw-700 mb-3 text-secondary">Orders By Status</h5>
+                        <div class="chart-container">
+                            <canvas id="statusChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="card glass-effect border-0 p-4">
+                        <h5 class="fw-700 mb-3 text-secondary">Category Performance</h5>
+                        <div class="chart-container">
+                            <canvas id="categoryPerformanceChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- JS Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/auth.js"></script>
+    <script src="/assets/js/dashboard.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize Dashboard data
+            window.Dashboard.init();
+
+            // Mobile sidebar toggler
+            const sidebarToggler = document.getElementById('sidebar-toggler');
+            const sidebar = document.querySelector('.sidebar');
+            if (sidebarToggler && sidebar) {
+                sidebarToggler.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    sidebar.classList.toggle('show');
+                });
+                document.addEventListener('click', (e) => {
+                    if (sidebar.classList.contains('show') && !sidebar.contains(e.target) && e.target !== sidebarToggler) {
+                        sidebar.classList.remove('show');
+                    }
+                });
+            }
+
+            // Theme toggler
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            if (themeToggleBtn) {
+                themeToggleBtn.addEventListener('click', () => {
+                    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+                    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                    
+                    document.documentElement.setAttribute('data-theme', newTheme);
+                    localStorage.setItem('color-scheme', newTheme);
+                    
+                    const icon = themeToggleBtn.querySelector('i');
+                    if (icon) {
+                        icon.className = newTheme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+                    }
+
+                    // Re-draw charts to adapt to text and grid colors
+                    window.Dashboard.updateChartsTheme();
+                });
+                
+                // Initialize icon
+                const initialTheme = document.documentElement.getAttribute('data-theme') || 'light';
+                const icon = themeToggleBtn.querySelector('i');
+                if (icon) {
+                    icon.className = initialTheme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+                }
+            }
+
+            // Sign out handler
+            document.getElementById('adminSignOutBtn').addEventListener('click', (e) => {
+                e.preventDefault();
+                window.Auth.logout(true);
+            });
+        });
+    </script>
+</body>
+</html>

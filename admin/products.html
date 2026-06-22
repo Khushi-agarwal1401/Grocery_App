@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grocery Admin - Products</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <!-- Global Stylesheets -->
+    <link href="/assets/css/styles.css" rel="stylesheet">
+    <link href="/assets/css/admin.css" rel="stylesheet">
+    <script>
+        const colorScheme = localStorage.getItem("color-scheme") || "light";
+        document.documentElement.setAttribute('data-theme', colorScheme);
+    </script>
+</head>
+<body class="admin-body">
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <a href="/admin/index.html" class="sidebar-brand">
+            <i class="bi bi-cart4"></i>
+            <span>GROCERY ADMIN</span>
+        </a>
+        <ul class="sidebar-menu">
+            <li class="sidebar-item">
+                <a href="/admin/index.html" class="sidebar-link">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="/admin/categories.html" class="sidebar-link">
+                    <i class="bi bi-tags"></i>
+                    <span>Categories</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="/admin/suppliers.html" class="sidebar-link">
+                    <i class="bi bi-truck"></i>
+                    <span>Suppliers</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="/admin/customers.html" class="sidebar-link">
+                    <i class="bi bi-people"></i>
+                    <span>Customers</span>
+                </a>
+            </li>
+            <li class="sidebar-item active">
+                <a href="/admin/products.html" class="sidebar-link">
+                    <i class="bi bi-box-seam"></i>
+                    <span>Products</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="/admin/orders.html" class="sidebar-link">
+                    <i class="bi bi-receipt"></i>
+                    <span>Orders</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="/admin/payments.html" class="sidebar-link">
+                    <i class="bi bi-credit-card"></i>
+                    <span>Payments</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="/admin/delivery_agents.html" class="sidebar-link">
+                    <i class="bi bi-bicycle"></i>
+                    <span>Delivery Agents</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="/admin/reports.html" class="sidebar-link">
+                    <i class="bi bi-graph-up-arrow"></i>
+                    <span>Reports</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Main Content Wrapper -->
+    <div class="admin-wrapper">
+        <!-- Top Navbar -->
+        <header class="top-navbar glass-effect">
+            <div class="d-flex align-items-center">
+                <button id="sidebar-toggler" class="btn border-0 sidebar-toggler px-2 text-primary" type="button">
+                    <i class="bi bi-list fs-3"></i>
+                </button>
+                <h4 class="mb-0 fw-700 text-primary">Product Inventory</h4>
+            </div>
+            
+            <div class="d-flex align-items-center gap-3 ms-auto">
+                <button id="theme-toggle" class="navbar-action-btn" title="Toggle Theme" type="button">
+                    <i class="bi bi-moon-fill"></i>
+                </button>
+                <div class="dropdown">
+                    <button class="btn border-0 d-flex align-items-center gap-2 p-1" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-600" style="width: 36px; height: 36px;">
+                            A
+                        </div>
+                        <span class="d-none d-md-inline fw-600 text-secondary" id="userDropdownName">Admin</span>
+                        <i class="bi bi-chevron-down text-secondary fs-8"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="profileDropdown">
+                        <li><a class="dropdown-item py-2" href="#" id="adminSignOutBtn"><i class="bi bi-box-arrow-right me-2 text-danger"></i> Sign Out</a></li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+
+        <main class="container-fluid p-4">
+            <!-- Table Card -->
+            <div class="card glass-effect border-0 admin-table-card">
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+                    <h5 class="fw-800 mb-0 text-secondary">Products Registry</h5>
+                    <button type="button" class="btn btn-primary d-flex align-items-center gap-2" id="addNewBtn">
+                        <i class="bi bi-plus-lg"></i>
+                        <span>Add Product</span>
+                    </button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle" id="productsTable" style="width:100%;">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Image</th>
+                                <th>Name</th>
+                                <th>Category</th>
+                                <th>Supplier</th>
+                                <th>Price</th>
+                                <th>Stock</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productsTableBody">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Product Form Modal -->
+    <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content glass-effect border-0 shadow">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-800 text-primary" id="productModalLabel">Add New Product</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="productForm" enctype="multipart/form-data">
+                    <div class="modal-body py-3">
+                        <input type="hidden" id="Product_ID" name="Product_ID" value="0">
+                        
+                        <div class="mb-3">
+                            <label for="Product_Name" class="form-label fw-600">Product Name</label>
+                            <input type="text" class="form-control" id="Product_Name" name="Product_Name" placeholder="Enter product name" required>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label for="Price" class="form-label fw-600">Price (₹)</label>
+                                <input type="number" step="0.01" min="0.01" class="form-control" id="Price" name="Price" placeholder="0.00" required>
+                            </div>
+                            <div class="col-6">
+                                <label for="Stock" class="form-label fw-600">Stock Qty</label>
+                                <input type="number" min="0" class="form-control" id="Stock" name="Stock" placeholder="0" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="Category_ID" class="form-label fw-600">Category</label>
+                            <select class="form-select" id="Category_ID" name="Category_ID" required>
+                                <option value="" disabled selected>Select category</option>
+                                <!-- Categories populated dynamically -->
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="Supplier_ID" class="form-label fw-600">Supplier</label>
+                            <select class="form-select" id="Supplier_ID" name="Supplier_ID" required>
+                                <option value="" disabled selected>Select supplier</option>
+                                <!-- Suppliers populated dynamically -->
+                            </select>
+                        </div>
+
+                        <div class="mb-2">
+                            <label for="Product_Image" class="form-label fw-600">Product Image</label>
+                            <input type="file" class="form-control" id="Product_Image" name="Product_Image" accept="image/*">
+                            <div class="form-text">Allowed formats: JPG, JPEG, PNG, WEBP.</div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 pt-0">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="saveProductBtn">Save Product</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    
+    <script src="/assets/js/api.js"></script>
+    <script src="/assets/js/auth.js"></script>
+    <script src="/assets/js/products.js"></script>
+    
+    <script>
+        let datatableInstance = null;
+        let categoriesList = [];
+        let suppliersList = [];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Load lists
+            await loadCatalogLists();
+            await refreshProductsTable();
+
+            // Bind selectors
+            document.getElementById('addNewBtn').addEventListener('click', () => {
+                showProductModal();
+            });
+
+            // Handle Form Submit
+            document.getElementById('productForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                await saveProduct();
+            });
+
+            // Mobile sidebar toggler
+            const sidebarToggler = document.getElementById('sidebar-toggler');
+            const sidebar = document.querySelector('.sidebar');
+            if (sidebarToggler && sidebar) {
+                sidebarToggler.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    sidebar.classList.toggle('show');
+                });
+            }
+
+            // Theme toggler
+            document.getElementById('theme-toggle').addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('color-scheme', newTheme);
+            });
+
+            // Sign out
+            document.getElementById('adminSignOutBtn').addEventListener('click', (e) => {
+                e.preventDefault();
+                window.Auth.logout(true);
+            });
+        });
+
+        async function loadCatalogLists() {
+            try {
+                // Fetch categories
+                categoriesList = await window.Products.fetchCategories();
+                const catSelect = document.getElementById('Category_ID');
+                catSelect.innerHTML = '<option value="" disabled selected>Select category</option>';
+                categoriesList.forEach(c => {
+                    catSelect.innerHTML += `<option value="${c.Category_ID}">${c.Category_Name}</option>`;
+                });
+
+                // Fetch suppliers
+                const supRes = await window.API.get('crud_handlers.php', { module: 'suppliers', action: 'list' });
+                if (supRes.success) {
+                    suppliersList = supRes.data;
+                    const supSelect = document.getElementById('Supplier_ID');
+                    supSelect.innerHTML = '<option value="" disabled selected>Select supplier</option>';
+                    suppliersList.forEach(s => {
+                        supSelect.innerHTML += `<option value="${s.Supplier_ID}">${s.Name}</option>`;
+                    });
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function refreshProductsTable() {
+            try {
+                const products = await window.Products.fetchAll();
+                const tbody = document.getElementById('productsTableBody');
+                
+                // Clear datatable
+                if (datatableInstance) {
+                    datatableInstance.destroy();
+                }
+                
+                tbody.innerHTML = '';
+                
+                products.forEach(p => {
+                    // Check stock visual badge
+                    let stockBadgeClass = 'bg-success';
+                    if (parseInt(p.Stock) === 0) {
+                        stockBadgeClass = 'bg-danger';
+                    } else if (parseInt(p.Stock) < 20) {
+                        stockBadgeClass = 'bg-warning text-dark';
+                    }
+                    
+                    // Render image
+                    const imagePath = `/uploads/product_${p.Product_ID}.jpg`;
+                    const fallbackHtml = window.Products.getProductPlaceholder(p.Category_Name);
+                    
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><strong>#${p.Product_ID}</strong></td>
+                            <td>
+                                <div style="width: 50px; height: 50px; border-radius: 8px; overflow:hidden;" class="bg-tertiary d-flex align-items-center justify-content-center">
+                                    <img src="${imagePath}" onerror="this.outerHTML='${fallbackHtml.replace(/'/g, "\\'")}'" style="max-width:100%; max-height:100%; object-fit:contain;">
+                                </div>
+                            </td>
+                            <td><span class="fw-700">${p.Product_Name}</span></td>
+                            <td><span class="badge bg-light text-dark border">${p.Category_Name || 'None'}</span></td>
+                            <td>${p.Supplier_Name || 'None'}</td>
+                            <td class="fw-800 text-primary">₹${parseFloat(p.Price).toFixed(2)}</td>
+                            <td>
+                                <span class="badge ${stockBadgeClass} px-2.5 py-1.5 fw-600">
+                                    ${p.Stock} items
+                                </span>
+                            </td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-sm btn-outline-primary py-1 px-2.5" onclick="editProduct(${p.Product_ID})">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger py-1 px-2.5" onclick="deleteProduct(${p.Product_ID})">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                // Initialize DataTable
+                datatableInstance = $('#productsTable').DataTable({
+                    order: [[0, 'asc']],
+                    pageLength: 10,
+                    language: {
+                        search: "_INPUT_",
+                        searchPlaceholder: "Search products..."
+                    }
+                });
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function showProductModal(id = 0, name = '', price = '', stock = '', catId = '', supId = '') {
+            document.getElementById('Product_ID').value = id;
+            document.getElementById('Product_Name').value = name;
+            document.getElementById('Price').value = price;
+            document.getElementById('Stock').value = stock;
+            document.getElementById('Category_ID').value = catId;
+            document.getElementById('Supplier_ID').value = supId;
+            document.getElementById('Product_Image').value = '';
+            
+            document.getElementById('productModalLabel').textContent = id > 0 ? 'Edit Product' : 'Add New Product';
+            
+            const modal = new bootstrap.Modal(document.getElementById('productModal'));
+            modal.show();
+        }
+
+        async function editProduct(id) {
+            try {
+                const product = await window.Products.fetchDetails(id);
+                if (product) {
+                    showProductModal(
+                        product.Product_ID,
+                        product.Product_Name,
+                        product.Price,
+                        product.Stock,
+                        product.Category_ID,
+                        product.Supplier_ID
+                    );
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function saveProduct() {
+            const form = document.getElementById('productForm');
+            const formData = new FormData(form);
+            
+            try {
+                const res = await window.API.post('crud_handlers.php?module=products&action=save', formData, true);
+                if (res.success) {
+                    window.API.showToast(res.message, 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('productModal')).hide();
+                    await refreshProductsTable();
+                } else {
+                    window.API.showToast(res.message || 'Failed to save product', 'danger');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function deleteProduct(id) {
+            if (confirm(`Are you sure you want to delete Product #${id}?`)) {
+                try {
+                    const formData = new FormData();
+                    formData.append('id', id);
+                    const res = await window.API.post('crud_handlers.php?module=products&action=delete', formData);
+                    if (res.success) {
+                        window.API.showToast(res.message, 'success');
+                        await refreshProductsTable();
+                    } else {
+                        window.API.showToast(res.message || 'Failed to delete product', 'danger');
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
