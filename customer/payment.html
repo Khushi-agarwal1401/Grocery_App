@@ -9,15 +9,15 @@
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <!-- Global Stylesheets -->
-    <link href="/assets/css/styles.css" rel="stylesheet">
-    <link href="/assets/css/customer.css" rel="stylesheet">
+    <link href="../assets/css/styles.css" rel="stylesheet">
+    <link href="../assets/css/customer.css" rel="stylesheet">
     <script>
         const colorScheme = localStorage.getItem("color-scheme") || "light";
         document.documentElement.setAttribute('data-theme', colorScheme);
     </script>
     <style>
         body {
-            background: radial-gradient(circle at 50% 50%, rgba(var(--primary-rgb), 0.05) 0%, rgba(0, 0, 0, 0) 80%), var(--bg-primary);
+            background: radial-gradient(circle at 50% 50%, rgba(0, 200, 83, 0.05) 0%, rgba(0, 0, 0, 0) 80%), var(--bg-primary);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -43,7 +43,7 @@
             width: 72px;
             height: 72px;
             border-radius: 50%;
-            border: 4px solid rgba(var(--primary-rgb), 0.15);
+            border: 4px solid rgba(0, 200, 83, 0.15);
             border-top-color: var(--primary);
             animation: spin 1s infinite linear;
             margin: 0 auto 1.75rem;
@@ -60,7 +60,7 @@
             justify-content: center;
             font-size: 3.5rem;
             margin: 0 auto 1.75rem;
-            box-shadow: 0 10px 25px rgba(var(--primary-rgb), 0.3);
+            box-shadow: 0 10px 25px rgba(0, 200, 83, 0.3);
             animation: scale-up 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
 
@@ -121,10 +121,10 @@
 </div>
 
 <!-- JS Scripts -->
-<script src="/assets/js/api.js"></script>
-<script src="/assets/js/auth.js"></script>
-<script src="/assets/js/cart.js"></script>
-<script src="/assets/js/products.js"></script>
+<script src="../assets/js/api.js"></script>
+<script src="../assets/js/auth.js"></script>
+<script src="../assets/js/cart.js"></script>
+<script src="../assets/js/products.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const mode = localStorage.getItem('checkout_payment_mode') || 'UPI';
@@ -157,28 +157,22 @@
         const custId = localStorage.getItem('checkout_cust_id') || window.Cart.getCustomerId();
 
         try {
-            const response = await fetch('/backend/api/order_actions.php?action=create', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-CSRF-TOKEN': window.csrfToken
-                },
-                body: new URLSearchParams({
-                    Customer_ID: custId,
-                    Order_Date: new Date().toISOString().split('T')[0],
-                    Status: 'Pending',
-                    Payment_Mode: mode,
-                    Payment_Status: 'Success',
-                    csrf_token: window.csrfToken,
-                    ...items.reduce((acc, item, idx) => {
-                        acc[`items[${idx}][Product_ID]`] = item.Product_ID;
-                        acc[`items[${idx}][Quantity]`] = item.Quantity;
-                        return acc;
-                    }, {})
-                })
-            });
+            const orderData = {
+                Customer_ID: custId,
+                Order_Date: new Date().toISOString().split('T')[0],
+                Status: 'Pending',
+                Payment_Mode: mode,
+                Payment_Status: 'Success',
+                csrf_token: window.csrfToken,
+                ...items.reduce((acc, item, idx) => {
+                    acc[`items[${idx}][Product_ID]`] = item.Product_ID;
+                    acc[`items[${idx}][Quantity]`] = item.Quantity;
+                    return acc;
+                }, {})
+            };
 
-            const res = await response.json();
+            const res = await window.API.post('order_actions.php?action=create', orderData);
+            
             if (res.success) {
                 // Clear cart on success
                 window.Cart.clear();
@@ -190,7 +184,7 @@
 
                 // Redirect to tracking page
                 setTimeout(() => {
-                    window.location.href = `/customer/orders.html?id=${res.order_id}&track=true`;
+                    window.location.href = `./orders.html?id=${res.order_id}&track=true`;
                 }, 1500);
             } else {
                 window.API.showToast(res.message || 'Failed to place order after payment', 'danger');
