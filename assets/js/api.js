@@ -126,11 +126,6 @@
 
         if (endpointClean === 'auth_status.php') {
             let session = JSON.parse(localStorage.getItem('customer_session'));
-            if (!session) {
-                // Auto log in a default mock customer so they have a seamless showcase
-                session = { role: 'customer', user_id: 1, username: 'user', name: 'Aarav Sharma' };
-                localStorage.setItem('customer_session', JSON.stringify(session));
-            }
             return { 
                 success: true, 
                 authenticated: !!session, 
@@ -303,7 +298,12 @@
                     name: cust.Name
                 };
                 localStorage.setItem('customer_session', JSON.stringify(session));
-                return { success: true, message: 'Logged in successfully' };
+                return { 
+                    success: true, 
+                    role: session.role, 
+                    username: session.username, 
+                    message: 'Logged in successfully' 
+                };
             }
             return { success: false, message: 'Invalid username or password. Use user/user123 or admin/admin123.' };
         }

@@ -26,7 +26,12 @@ if ($username === ADMIN_USER && password_verify($password, ADMIN_PASS_HASH)) {
         setcookie('remember_admin', ADMIN_USER, time() + (86400 * 30), "/");
     }
     
-    echo json_encode(['success' => true, 'message' => 'Welcome back, Admin!']);
+    echo json_encode([
+        'success' => true,
+        'role' => 'admin',
+        'username' => ADMIN_USER,
+        'message' => 'Welcome back, Admin!'
+    ]);
 } elseif ($username === REGULAR_USER && password_verify($password, REGULAR_USER_HASH)) {
     $_SESSION['user_logged_in'] = true;
     $_SESSION['username'] = REGULAR_USER;
@@ -35,7 +40,12 @@ if ($username === ADMIN_USER && password_verify($password, ADMIN_PASS_HASH)) {
         setcookie('remember_admin', REGULAR_USER, time() + (86400 * 30), "/");
     }
     
-    echo json_encode(['success' => true, 'message' => 'Welcome back, User!']);
+    echo json_encode([
+        'success' => true,
+        'role' => 'customer',
+        'username' => REGULAR_USER,
+        'message' => 'Welcome back, User!'
+    ]);
 } else {
     echo json_encode(['success' => false, 'message' => 'Incorrect username or password.']);
 }

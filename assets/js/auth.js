@@ -7,8 +7,15 @@
          * Initialize Auth session check on page load
          */
         async checkSession() {
-            const currentPath = window.location.pathname;
-            const isLoginPage = currentPath.includes('/login.html');
+            const pathname = window.location.pathname;
+            let base = '/';
+            if (pathname.includes('/Grocery_App/')) {
+                base = '/Grocery_App/';
+            }
+            
+            const isLoginPage = pathname.includes('/login.html');
+            const isAdminFolder = pathname.includes('/admin');
+            const isCustomerFolder = pathname.includes('/customer');
             
             try {
                 // Fetch current status using the interceptable API helper if available
@@ -22,17 +29,34 @@
                     if (isLoginPage) {
                         if (data.authenticated) {
                             // Redirect to home/dashboard if already logged in
-                            window.location.href = './index.html';
+                            const role = data.role || data.session?.role || (data.username === 'admin' ? 'admin' : 'customer');
+                            if (role === 'admin') {
+                                window.location.href = base + 'admin/index.html';
+                            } else {
+                                window.location.href = base + 'customer/index.html';
+                            }
                         }
                     } else {
                         if (!data.authenticated) {
-                            // Redirect to login page if unauthenticated
-                            window.location.href = './login.html';
+                            // Redirect to correct login page if unauthenticated
+                            if (isAdminFolder) {
+                                window.location.href = base + 'admin/login.html';
+                            } else {
+                                window.location.href = base + 'customer/login.html';
+                            }
                         } else {
-                            // Set header dropdown name and trigger load
-                            const userDropdownName = document.getElementById('userDropdownName');
-                            if (userDropdownName) {
-                                userDropdownName.textContent = data.username || 'User';
+                            // Enforce role-based access control
+                            const role = data.role || data.session?.role || (data.username === 'admin' ? 'admin' : 'customer');
+                            if (role === 'admin' && !isAdminFolder) {
+                                window.location.href = base + 'admin/index.html';
+                            } else if (role === 'customer' && isAdminFolder) {
+                                window.location.href = base + 'customer/index.html';
+                            } else {
+                                // Set header dropdown name and trigger load
+                                const userDropdownName = document.getElementById('userDropdownName');
+                                if (userDropdownName) {
+                                    userDropdownName.textContent = data.username || 'User';
+                                }
                             }
                         }
                     }
@@ -40,7 +64,11 @@
             } catch (error) {
                 console.error('Session check failed:', error);
                 if (!isLoginPage) {
-                    window.location.href = './login.html';
+                    if (isAdminFolder) {
+                        window.location.href = base + 'admin/login.html';
+                    } else {
+                        window.location.href = base + 'customer/login.html';
+                    }
                 }
             }
         },
@@ -69,7 +97,18 @@
                     }).then(r => r.json());
                 
                 if (data.success) {
-                    window.location.href = './index.html';
+                    const pathname = window.location.pathname;
+                    let base = '/';
+                    if (pathname.includes('/Grocery_App/')) {
+                        base = '/Grocery_App/';
+                    }
+                    
+                    const role = data.role || (username === 'admin' ? 'admin' : 'customer');
+                    if (role === 'admin') {
+                        window.location.href = base + 'admin/index.html';
+                    } else {
+                        window.location.href = base + 'customer/index.html';
+                    }
                 } else {
                     if (window.API) {
                         window.API.showToast(data.message || 'Login failed', 'danger');
@@ -91,15 +130,34 @@
                     await window.API.get('logout_handler.php') :
                     await fetch('/backend/api/logout_handler.php').then(r => r.json());
                 
+                const pathname = window.location.pathname;
+                let base = '/';
+                if (pathname.includes('/Grocery_App/')) {
+                    base = '/Grocery_App/';
+                }
+                
                 if (data.success) {
-                    window.location.href = './login.html';
+                    if (pathname.includes('/admin')) {
+                        window.location.href = base + 'admin/login.html';
+                    } else {
+                        window.location.href = base + 'customer/login.html';
+                    }
                 }
             } catch (error) {
                 console.error('Logout failed:', error);
+                const pathname = window.location.pathname;
+                let base = '/';
+                if (pathname.includes('/Grocery_App/')) {
+                    base = '/Grocery_App/';
+                }
                 if (window.API) {
                     window.API.showToast('Logout failed. Directing to login.', 'warning');
                 }
-                window.location.href = './login.html';
+                if (pathname.includes('/admin')) {
+                    window.location.href = base + 'admin/login.html';
+                } else {
+                    window.location.href = base + 'customer/login.html';
+                }
             }
         }
     };

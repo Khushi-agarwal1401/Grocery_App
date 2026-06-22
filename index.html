@@ -2,13 +2,27 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0; url=customer/index.html" />
     <title>Redirecting to FreshCart Storefront...</title>
     <script type="text/javascript">
-        window.location.href = "customer/index.html";
+        // Direct visitor to login page or dashboard according to their role and active session
+        const sessionStr = localStorage.getItem('customer_session');
+        if (sessionStr) {
+            try {
+                const session = JSON.parse(sessionStr);
+                if (session && session.role === 'admin') {
+                    window.location.href = "admin/index.html";
+                } else {
+                    window.location.href = "customer/index.html";
+                }
+            } catch (e) {
+                window.location.href = "customer/login.html";
+            }
+        } else {
+            window.location.href = "customer/login.html";
+        }
     </script>
 </head>
 <body>
-    <p>If you are not redirected automatically, follow this <a href="customer/index.html">link to the FreshCart Storefront</a>.</p>
+    <p>If you are not redirected automatically, follow this <a href="customer/login.html">link to sign in</a>.</p>
 </body>
 </html>
