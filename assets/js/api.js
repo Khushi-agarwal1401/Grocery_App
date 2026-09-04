@@ -85,7 +85,13 @@
     // Seeder function
     function initializeMockStorage() {
         if (localStorage.getItem('mock_db_initialized') === 'true') return;
-        localStorage.setItem('mock_customers', JSON.stringify(MOCK_SEEDS.customers));
+        
+        const seededCustomers = MOCK_SEEDS.customers.map(c => ({
+            ...c,
+            Password: c.Password || c.Name.split(' ')[0].toLowerCase() + '123'
+        }));
+        
+        localStorage.setItem('mock_customers', JSON.stringify(seededCustomers));
         localStorage.setItem('mock_categories', JSON.stringify(MOCK_SEEDS.categories));
         localStorage.setItem('mock_suppliers', JSON.stringify(MOCK_SEEDS.suppliers));
         localStorage.setItem('mock_products', JSON.stringify(MOCK_SEEDS.products));
@@ -291,26 +297,85 @@
         }
 
         if (endpointClean === 'login_handler.php') {
-            const username = postData.username;
+            const username = postData.username; // Admin login still uses username
+            const email = postData.email;       // Customer login uses email
             const password = postData.password;
 
-            if ((username === 'user' && password === 'user123') || (username === 'admin' && password === 'admin123')) {
-                const cust = customers.find(c => c.Customer_ID === 1) || { Name: 'Aarav Sharma' };
+            if (username === 'admin' && password === 'admin123') {
                 const session = {
-                    role: username === 'admin' ? 'admin' : 'customer',
+                    role: 'admin',
                     user_id: 1,
-                    username: username,
-                    name: cust.Name
+                    username: 'admin',
+                    name: 'Admin'
                 };
                 localStorage.setItem('customer_session', JSON.stringify(session));
                 return { 
                     success: true, 
-                    role: session.role, 
-                    username: session.username, 
+                    role: 'admin', 
+                    username: 'admin', 
                     message: 'Logged in successfully' 
                 };
             }
-            return { success: false, message: 'Invalid username or password. Use user/user123 or admin/admin123.' };
+
+            if (email && password) {
+                const cust = customers.find(c => c.Email === email);
+                if (cust) {
+                    const expectedPassword = cust.Password || cust.Name.split(' ')[0].toLowerCase() + '123';
+                    if (password === expectedPassword) {
+                        const session = {
+                            role: 'customer',
+                            user_id: cust.Customer_ID,
+                            username: email,
+                            email: email,
+                            name: cust.Name
+                        };
+                        localStorage.setItem('customer_session', JSON.stringify(session));
+                        return { 
+                            success: true, 
+                            role: 'customer', 
+                            username: email, 
+                            message: 'Logged in successfully' 
+                        };
+                    }
+                }
+            }
+            return { success: false, message: 'Invalid credentials. Ensure you enter a valid email/password.' };
+        }
+
+        if (endpointClean === 'signup_handler.php') {
+            const name = postData.name;
+            const email = postData.email;
+            const password = postData.password;
+            
+            // For mock, persist them so login works later
+            const newId = customers.length > 0 ? Math.max(...customers.map(c => c.Customer_ID)) + 1 : 1;
+            const newCust = {
+                Customer_ID: newId,
+                Name: name,
+                Email: email,
+                Password: password,
+                Phone: '',
+                Address: '',
+                Registered_Date: new Date().toISOString().split('T')[0]
+            };
+            customers.push(newCust);
+            localStorage.setItem('mock_customers', JSON.stringify(customers));
+            
+            const session = {
+                role: 'customer',
+                user_id: newId,
+                username: email,
+                email: email,
+                name: name
+            };
+            
+            localStorage.setItem('customer_session', JSON.stringify(session));
+            return { 
+                success: true, 
+                role: session.role, 
+                username: session.username, 
+                message: 'Account created and logged in successfully' 
+            };
         }
 
         if (endpointClean === 'logout_handler.php') {
@@ -412,6 +477,7 @@
                 if (cust) {
                     cust.Name = postData.Name || cust.Name;
                     cust.Email = postData.Email || cust.Email;
+                    cust.Password = postData.Password || cust.Password;
                     cust.Phone = postData.Phone || cust.Phone;
                     cust.Address = postData.Address || cust.Address;
                     localStorage.setItem('mock_customers', JSON.stringify(customers));
@@ -423,6 +489,21 @@
                         localStorage.setItem('customer_session', JSON.stringify(session));
                     }
                     return { success: true, message: 'Profile updated successfully!' };
+                } else if (cId === 0) {
+                    // Create new customer
+                    const newId = customers.length > 0 ? Math.max(...customers.map(c => c.Customer_ID)) + 1 : 1;
+                    const newCust = {
+                        Customer_ID: newId,
+                        Name: postData.Name,
+                        Email: postData.Email,
+                        Password: postData.Password || (postData.Name ? postData.Name.split(' ')[0].toLowerCase() + '123' : 'user123'),
+                        Phone: postData.Phone,
+                        Address: postData.Address,
+                        Registered_Date: postData.Registered_Date || new Date().toISOString().split('T')[0]
+                    };
+                    customers.push(newCust);
+                    localStorage.setItem('mock_customers', JSON.stringify(customers));
+                    return { success: true, message: 'Customer created successfully!' };
                 }
                 return { success: false, message: 'Customer not found' };
             }

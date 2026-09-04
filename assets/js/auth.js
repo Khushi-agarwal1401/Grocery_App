@@ -13,7 +13,7 @@
                 base = '/Grocery_App/';
             }
             
-            const isLoginPage = pathname.includes('/login.html');
+            const isAuthPage = pathname.includes('/login.html') || pathname.includes('/signup.html');
             const isAdminFolder = pathname.includes('/admin');
             const isCustomerFolder = pathname.includes('/customer');
             
@@ -26,7 +26,7 @@
                 if (data.success) {
                     window.csrfToken = data.csrf_token;
                     
-                    if (isLoginPage) {
+                    if (isAuthPage) {
                         if (data.authenticated) {
                             // Redirect to home/dashboard if already logged in
                             const role = data.role || data.session?.role || (data.username === 'admin' ? 'admin' : 'customer');
@@ -63,7 +63,7 @@
                 }
             } catch (error) {
                 console.error('Session check failed:', error);
-                if (!isLoginPage) {
+                if (!isAuthPage) {
                     if (isAdminFolder) {
                         window.location.href = base + 'admin/login.html';
                     } else {
@@ -76,9 +76,9 @@
         /**
          * Perform login
          */
-        async login(username, password, rememberMe = false, isAdmin = false) {
+        async login(email, password, rememberMe = false, isAdmin = false) {
             const formData = new FormData();
-            formData.append('username', username);
+            formData.append('email', email);
             formData.append('password', password);
             formData.append('csrf_token', window.csrfToken);
             if (rememberMe) {
@@ -103,7 +103,7 @@
                         base = '/Grocery_App/';
                     }
                     
-                    const role = data.role || (username === 'admin' ? 'admin' : 'customer');
+                    const role = data.role || (email === 'admin' || email === 'admin@example.com' ? 'admin' : 'customer');
                     if (role === 'admin') {
                         window.location.href = base + 'admin/index.html';
                     } else {
@@ -117,6 +117,46 @@
                 }
             } catch (error) {
                 console.error('Login action failed:', error);
+                throw error;
+            }
+        },
+
+        /**
+         * Perform signup
+         */
+        async signup(userData) {
+            const formData = new FormData();
+            formData.append('name', userData.name);
+            formData.append('email', userData.email);
+            formData.append('password', userData.password);
+            formData.append('csrf_token', window.csrfToken);
+
+            try {
+                const data = window.API ? 
+                    await window.API.post('signup_handler.php', formData) :
+                    await fetch('/backend/api/signup_handler.php', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRF-TOKEN': window.csrfToken
+                        }
+                    }).then(r => r.json());
+                
+                if (data.success) {
+                    const pathname = window.location.pathname;
+                    let base = '/';
+                    if (pathname.includes('/Grocery_App/')) {
+                        base = '/Grocery_App/';
+                    }
+                    window.location.href = base + 'customer/index.html';
+                } else {
+                    if (window.API) {
+                        window.API.showToast(data.message || 'Signup failed', 'danger');
+                    }
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                console.error('Signup action failed:', error);
                 throw error;
             }
         },

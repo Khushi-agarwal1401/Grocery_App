@@ -1,0 +1,227 @@
+/* Premium Split-Screen Login Styles */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow-x: hidden;
+    font-family: var(--font-heading);
+}
+
+.split-login-wrapper {
+    display: flex;
+    min-height: 100vh;
+    width: 100vw;
+    background-color: var(--bg-primary);
+}
+
+.split-left {
+    flex: 1.2;
+    position: relative;
+    overflow: hidden;
+    display: none; /* Hidden on mobile */
+    flex-direction: column;
+    justify-content: center;
+    padding: 4rem;
+    color: #fff;
+    background: var(--split-left-bg, linear-gradient(135deg, #10b981 0%, #047857 100%));
+}
+
+@media (min-width: 992px) {
+    .split-left {
+        display: flex;
+    }
+}
+
+.split-left::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: url('data:image/svg+xml;utf8,<svg width="20" height="20" xmlns="http://www.w3.org/2000/svg"><circle cx="2" cy="2" r="2" fill="rgba(255,255,255,0.05)"/></svg>');
+    opacity: 0.6;
+}
+
+.split-left-content {
+    position: relative;
+    z-index: 2;
+    max-width: 500px;
+}
+
+.brand-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    letter-spacing: -1px;
+}
+
+.brand-subtitle {
+    font-size: 1.25rem;
+    font-weight: 400;
+    opacity: 0.9;
+    line-height: 1.6;
+}
+
+/* Floating Glass Orbs */
+.glass-orb {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    animation: orb-float 8s ease-in-out infinite alternate;
+}
+
+.orb-1 { width: 150px; height: 150px; top: 15%; right: 10%; animation-delay: 0s; }
+.orb-2 { width: 250px; height: 250px; bottom: -5%; left: -5%; animation-delay: -2s; }
+.orb-3 { width: 80px; height: 80px; top: 40%; left: 20%; animation-delay: -4s; }
+
+@keyframes orb-float {
+    0% { transform: translateY(0px) rotate(0deg); }
+    100% { transform: translateY(-30px) rotate(15deg); }
+}
+
+/* Right Side - Form */
+.split-right {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    position: relative;
+    background: var(--bg-primary);
+}
+
+.login-card-premium {
+    width: 100%;
+    max-width: 440px;
+    background: var(--bg-secondary);
+    padding: 3.5rem 3rem;
+    border-radius: 28px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-deep);
+    position: relative;
+    z-index: 10;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+}
+
+.login-logo-mobile {
+    display: none;
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--primary);
+    text-decoration: none;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+@media (max-width: 991px) {
+    .login-logo-mobile {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5rem;
+    }
+}
+
+.form-label-premium {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 0.6rem;
+    display: block;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.input-group-premium {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.input-group-premium i:not(.bi-eye):not(.bi-eye-slash) {
+    position: absolute;
+    left: 1.2rem;
+    color: var(--text-tertiary);
+    font-size: 1.15rem;
+    pointer-events: none;
+    transition: var(--transition-smooth);
+}
+
+.form-control-premium {
+    background-color: var(--bg-tertiary);
+    border: 2px solid transparent;
+    color: var(--text-primary);
+    border-radius: 16px;
+    padding: 1rem 1.25rem 1rem 3.2rem;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: var(--transition-smooth);
+    width: 100%;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.form-control-premium:focus {
+    outline: none;
+    background-color: var(--bg-secondary);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(var(--primary-rgb), 0.1);
+}
+
+.form-control-premium:focus + i {
+    color: var(--primary);
+}
+
+.password-toggle-btn {
+    position: absolute;
+    right: 1rem;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    z-index: 10;
+    transition: var(--transition-smooth);
+}
+
+.password-toggle-btn:hover {
+    color: var(--text-primary);
+    transform: scale(1.1);
+}
+
+.btn-premium {
+    border-radius: 14px;
+    padding: 1rem;
+    font-size: 1.05rem;
+    letter-spacing: 0.5px;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-premium:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(var(--primary-rgb), 0.4);
+}
+
+.btn-premium:active {
+    transform: translateY(1px);
+}
+
+.switch-portal-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: var(--transition-smooth);
+}
+.switch-portal-link:hover {
+    gap: 0.6rem;
+}

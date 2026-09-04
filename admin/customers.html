@@ -131,6 +131,7 @@
                                 <th>ID</th>
                                 <th>Name</th>
                                 <th>Email</th>
+                                <th>Password</th>
                                 <th>Phone</th>
                                 <th>Registered Date</th>
                                 <th>Actions</th>
@@ -165,6 +166,11 @@
                         <div class="mb-3">
                             <label for="Email" class="form-label fw-600">Email Address</label>
                             <input type="email" class="form-control" id="Email" name="Email" placeholder="Enter email" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="Password" class="form-label fw-600">Password</label>
+                            <input type="text" class="form-control" id="Password" name="Password" placeholder="Enter password" required>
                         </div>
 
                         <div class="mb-3">
@@ -257,7 +263,7 @@
             // Bind triggers
             document.getElementById('addNewBtn').addEventListener('click', () => {
                 const today = new Date().toISOString().split('T')[0];
-                showCustomerModal(0, '', '', '', '', today);
+                showCustomerModal(0, '', '', '', '', today, '');
             });
 
             document.getElementById('customerForm').addEventListener('submit', async (e) => {
@@ -309,6 +315,7 @@
                                 <td><strong>#${c.Customer_ID}</strong></td>
                                 <td><span class="fw-700">${c.Name}</span></td>
                                 <td>${c.Email || 'No email'}</td>
+                                <td><span class="text-muted" style="font-family: monospace;">${c.Password || c.Name.split(' ')[0].toLowerCase() + '123'}</span></td>
                                 <td><i class="bi bi-telephone text-secondary me-2"></i>${c.Phone}</td>
                                 <td>${c.Registered_Date}</td>
                                 <td>
@@ -343,10 +350,11 @@
             }
         }
 
-        function showCustomerModal(id = 0, name = '', email = '', phone = '', address = '', regDate = '') {
+        function showCustomerModal(id = 0, name = '', email = '', phone = '', address = '', regDate = '', password = '') {
             document.getElementById('Customer_ID').value = id;
             document.getElementById('Name').value = name;
             document.getElementById('Email').value = email;
+            document.getElementById('Password').value = password;
             document.getElementById('Phone').value = phone;
             document.getElementById('Address').value = address;
             document.getElementById('Registered_Date').value = regDate;
@@ -367,7 +375,8 @@
                         res.data.Email,
                         res.data.Phone,
                         res.data.Address,
-                        res.data.Registered_Date
+                        res.data.Registered_Date,
+                        res.data.Password || res.data.Name.split(' ')[0].toLowerCase() + '123'
                     );
                 }
             } catch (err) {

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign In - FreshCart Premium Storefront</title>
+    <title>Sign Up - FreshCart Premium Storefront</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
@@ -30,11 +30,11 @@
             
             <div class="split-left-content">
                 <h1 class="brand-title"><i class="bi bi-cart4 me-3"></i>FreshCart</h1>
-                <p class="brand-subtitle">Experience instant grocery delivery with our premium, modern storefront. Sign in to access your wishlist, track orders, and discover daily fresh deals.</p>
+                <p class="brand-subtitle">Join us today to experience instant grocery delivery, exclusive member discounts, and fresh deals daily.</p>
             </div>
         </div>
 
-        <!-- Right Side: Login Form -->
+        <!-- Right Side: Signup Form -->
         <div class="split-right">
             <div class="login-card-premium">
                 <!-- Mobile Logo (visible only on small screens) -->
@@ -43,44 +43,46 @@
                 </a>
 
                 <div class="mb-4">
-                    <h3 class="fw-800 text-primary mb-2">Welcome Back!</h3>
-                    <p class="text-secondary">Sign in to experience instant grocery delivery</p>
+                    <h3 class="fw-800 text-primary mb-2">Create Account</h3>
+                    <p class="text-secondary">Sign up to start shopping instantly</p>
                 </div>
                 
-                <form id="customerLoginForm" novalidate>
+                <form id="customerSignupForm" novalidate>
+                    <label for="name" class="form-label-premium">Full Name</label>
+                    <div class="input-group-premium">
+                        <input type="text" class="form-control-premium" id="name" name="name" placeholder="Enter your full name" required>
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+
                     <label for="email" class="form-label-premium">Email Address</label>
                     <div class="input-group-premium">
-                        <input type="email" class="form-control-premium" id="email" name="email" placeholder="Enter your email (user@example.com)" required>
+                        <input type="email" class="form-control-premium" id="email" name="email" placeholder="Enter your email address" required>
                         <i class="bi bi-envelope"></i>
                     </div>
                     
                     <label for="password" class="form-label-premium">Password</label>
                     <div class="input-group-premium">
-                        <input type="password" class="form-control-premium" id="password" name="password" placeholder="Enter password (user123)" required>
+                        <input type="password" class="form-control-premium" id="password" name="password" placeholder="Create a password" required>
                         <i class="bi bi-lock"></i>
                         <button class="password-toggle-btn" type="button" id="togglePassword">
                             <i class="bi bi-eye"></i>
                         </button>
                     </div>
-                    
-                    <div class="mb-4 d-flex justify-content-between align-items-center">
-                        <div class="form-check">
-                            <input type="checkbox" class="form-check-input" id="remember_me" name="remember_me">
-                            <label class="form-check-label text-secondary fw-600 small" style="cursor:pointer;" for="remember_me">Remember me</label>
-                        </div>
-                        <a href="../admin/login.html" class="switch-portal-link text-success text-decoration-none">
-                            Admin Portal <i class="bi bi-arrow-right"></i>
-                        </a>
+
+                    <label for="confirm_password" class="form-label-premium">Confirm Password</label>
+                    <div class="input-group-premium">
+                        <input type="password" class="form-control-premium" id="confirm_password" name="confirm_password" placeholder="Confirm your password" required>
+                        <i class="bi bi-lock-fill"></i>
                     </div>
                     
-                    <button type="submit" class="btn btn-success btn-premium w-100 d-flex align-items-center justify-content-center gap-2">
-                        <span>Sign In to Shop</span>
-                        <i class="bi bi-arrow-right-short fs-4"></i>
+                    <button type="submit" class="btn btn-success btn-premium w-100 d-flex align-items-center justify-content-center gap-2 mb-4">
+                        <span>Sign Up</span>
+                        <i class="bi bi-person-plus-fill fs-5"></i>
                     </button>
                     
-                    <div class="text-center mt-4">
-                        <span class="text-secondary fw-500">Don't have an account?</span>
-                        <a href="signup.html" class="text-success text-decoration-none fw-700 ms-1 hover-underline">Sign Up</a>
+                    <div class="text-center">
+                        <span class="text-secondary fw-500">Already have an account?</span>
+                        <a href="login.html" class="text-success text-decoration-none fw-700 ms-1 hover-underline">Sign In</a>
                     </div>
                 </form>
             </div>
@@ -106,21 +108,27 @@
             }
 
             // Form Submission
-            const form = document.getElementById('customerLoginForm');
+            const form = document.getElementById('customerSignupForm');
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
+                const name = document.getElementById('name').value.trim();
                 const email = document.getElementById('email').value.trim();
-                const passwordVal = password.value;
-                const rememberMe = document.getElementById('remember_me').checked;
+                const passwordVal = document.getElementById('password').value;
+                const confirmPasswordVal = document.getElementById('confirm_password').value;
 
-                if (!email || !passwordVal) {
-                    window.API.showToast('Please fill in both fields.', 'warning');
+                if (!name || !email || !passwordVal || !confirmPasswordVal) {
+                    window.API.showToast('Please fill in all fields.', 'warning');
+                    return;
+                }
+
+                if (passwordVal !== confirmPasswordVal) {
+                    window.API.showToast('Passwords do not match.', 'warning');
                     return;
                 }
 
                 try {
-                    // Log in shopper (regular user)
-                    await window.Auth.login(email, passwordVal, rememberMe, false);
+                    // Sign up shopper (regular user)
+                    await window.Auth.signup({ name, email, password: passwordVal });
                 } catch (err) {
                     // Handled by API wrapper
                 }
