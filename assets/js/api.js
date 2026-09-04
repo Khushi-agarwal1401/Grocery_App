@@ -135,6 +135,11 @@
             };
         }
 
+        if (endpointClean === 'logout_handler.php') {
+            localStorage.removeItem('customer_session');
+            return { success: true, message: 'Logged out successfully' };
+        }
+
         if (endpointClean === 'crud_handlers.php') {
             const module = queryParams.module;
             const action = queryParams.action;
