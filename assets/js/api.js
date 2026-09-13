@@ -604,6 +604,9 @@
          * Display premium Toast Notification
          */
         showToast(message, type = 'success') {
+            if (message && typeof message === 'string' && message.toLowerCase().includes('not simulated')) {
+                return;
+            }
             let container = document.querySelector('.toast-container');
             if (!container) {
                 container = document.createElement('div');

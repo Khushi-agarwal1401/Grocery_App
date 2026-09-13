@@ -79,6 +79,7 @@
         async login(email, password, rememberMe = false, isAdmin = false) {
             const formData = new FormData();
             formData.append('email', email);
+            formData.append('username', email);
             formData.append('password', password);
             formData.append('csrf_token', window.csrfToken);
             if (rememberMe) {
