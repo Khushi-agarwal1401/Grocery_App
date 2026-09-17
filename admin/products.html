@@ -309,33 +309,52 @@
                         stockBadgeClass = 'bg-warning text-dark';
                     }
                     
-                    // Render image
+                    // Generate safe fallback HTML
                     const imagePath = `/uploads/product_${p.Product_ID}.jpg`;
-                    const fallbackHtml = window.Products.getProductPlaceholder(p.Category_Name);
+                    const fallbackHtml = window.Products.getProductPlaceholder(p.Category_Name, p.Product_Name);
+                    const safeFallback = fallbackHtml.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                    
+                    // Category badge color based on category
+                    const colors = {
+                        'Fruits': 'danger', 'Vegetables': 'success', 'Dairy': 'info', 
+                        'Bakery': 'warning', 'Beverages': 'primary'
+                    };
+                    const badgeTheme = colors[p.Category_Name] || 'secondary';
                     
                     tbody.innerHTML += `
-                        <tr>
-                            <td><strong>#${p.Product_ID}</strong></td>
+                        <tr class="align-middle transition-all hover-shadow-sm">
+                            <td class="text-secondary fw-600">#${p.Product_ID}</td>
                             <td>
-                                <div style="width: 50px; height: 50px; border-radius: 8px; overflow:hidden;" class="bg-tertiary d-flex align-items-center justify-content-center">
-                                    <img src="${imagePath}" onerror="this.outerHTML='${fallbackHtml.replace(/'/g, "\\'")}'" style="max-width:100%; max-height:100%; object-fit:contain;">
+                                <div class="position-relative shadow-sm border border-opacity-10" style="width: 56px; height: 56px; border-radius: 12px; overflow:hidden; background: #fff;">
+                                    <img src="${imagePath}" onerror="this.outerHTML='${safeFallback}'" alt="${p.Product_Name}" style="width:100%; height:100%; object-fit:cover; transition: transform 0.3s ease;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
                                 </div>
                             </td>
-                            <td><span class="fw-700">${p.Product_Name}</span></td>
-                            <td><span class="badge bg-light text-dark border">${p.Category_Name || 'None'}</span></td>
-                            <td>${p.Supplier_Name || 'None'}</td>
-                            <td class="fw-800 text-primary">₹${parseFloat(p.Price).toFixed(2)}</td>
                             <td>
-                                <span class="badge ${stockBadgeClass} px-2.5 py-1.5 fw-600">
-                                    ${p.Stock} items
+                                <div class="fw-700 text-dark fs-6">${p.Product_Name}</div>
+                                <div class="text-muted fs-8">ID: ${p.Product_ID}</div>
+                            </td>
+                            <td>
+                                <span class="badge rounded-pill bg-${badgeTheme} bg-opacity-10 text-${badgeTheme} border border-${badgeTheme} border-opacity-25 px-3 py-2 fw-600 shadow-sm">
+                                    <i class="bi bi-tag-fill me-1 opacity-75"></i>${p.Category_Name || 'Uncategorized'}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="text-secondary fw-500 d-flex align-items-center gap-1">
+                                    <i class="bi bi-building opacity-50"></i> ${p.Supplier_Name || 'N/A'}
+                                </span>
+                            </td>
+                            <td class="fw-800 text-primary fs-5">₹${parseFloat(p.Price).toFixed(2)}</td>
+                            <td>
+                                <span class="badge ${stockBadgeClass} rounded-pill px-3 py-2 fw-600 shadow-sm">
+                                    <i class="bi bi-box-seam me-1"></i>${p.Stock}
                                 </span>
                             </td>
                             <td>
                                 <div class="d-flex gap-2">
-                                    <button class="btn btn-sm btn-outline-primary py-1 px-2.5" onclick="editProduct(${p.Product_ID})">
+                                    <button class="btn btn-sm btn-light text-primary border-primary border-opacity-25 hover-primary py-1 px-2.5 rounded-3 transition-all shadow-sm" onclick="editProduct(${p.Product_ID})" title="Edit">
                                         <i class="bi bi-pencil-square"></i>
                                     </button>
-                                    <button class="btn btn-sm btn-outline-danger py-1 px-2.5" onclick="deleteProduct(${p.Product_ID})">
+                                    <button class="btn btn-sm btn-light text-danger border-danger border-opacity-25 hover-danger py-1 px-2.5 rounded-3 transition-all shadow-sm" onclick="deleteProduct(${p.Product_ID})" title="Delete">
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </div>
