@@ -147,13 +147,13 @@
         getCategoryImage(categoryName) {
             const images = {
                 'Fruits': 'https://images.unsplash.com/photo-1619546813926-a78fa6372cd2?auto=format&fit=crop&w=150&q=80',
-                'Vegetables': 'https://images.unsplash.com/photo-1566385101042-1a010c129fa6?auto=format&fit=crop&w=150&q=80',
+                'Vegetables': 'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?auto=format&fit=crop&w=150&q=80',
                 'Dairy': 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=150&q=80',
                 'Bakery': 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=150&q=80',
                 'Beverages': 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=150&q=80',
-                'Snacks': 'https://images.unsplash.com/photo-1599490659213-e2b9527bb087?auto=format&fit=crop&w=150&q=80',
+                'Snacks': 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?auto=format&fit=crop&w=150&q=80',
                 'Rice & Grains': 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=150&q=80',
-                'Pulses': 'https://images.unsplash.com/photo-1545114197-2f6a7e1b6015?auto=format&fit=crop&w=150&q=80',
+                'Pulses': 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=150&q=80',
                 'default': 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=150&q=80'
             };
             return images[categoryName] || images['default'];
@@ -175,10 +175,13 @@
                 'Vegetables': {
                     'Potato': 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=400&q=80',
                     'Tomato': 'https://images.unsplash.com/photo-1595855759920-86582396756a?auto=format&fit=crop&w=400&q=80',
-                    'Onion': 'https://images.unsplash.com/photo-1508747705-3de207a84595?auto=format&fit=crop&w=400&q=80',
+                    'Onion (Red)': 'https://images.pexels.com/photos/144206/pexels-photo-144206.jpeg',
+                    'Onion': 'https://images.pexels.com/photos/144206/pexels-photo-144206.jpeg',
                     'Carrot': 'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?auto=format&fit=crop&w=400&q=80',
                     'Cabbage': 'https://images.unsplash.com/photo-1550147760-44c9966d6bc7?auto=format&fit=crop&w=400&q=80',
-                    'default': 'https://images.unsplash.com/photo-1566385101042-1a010c129fa6?auto=format&fit=crop&w=400&q=80'
+                    'Spinach': 'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?auto=format&fit=crop&w=400&q=80',
+                    'Broccoli': 'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?auto=format&fit=crop&w=400&q=80',
+                    'default': 'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?auto=format&fit=crop&w=400&q=80'
                 },
                 'Dairy': {
                     'Milk': 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=400&q=80',
@@ -194,6 +197,16 @@
                     'Cake': 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=400&q=80',
                     'Croissant': 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=400&q=80',
                     'default': 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=400&q=80'
+                },
+                'Pulses': {
+                    'Lentils': 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=400&q=80',
+                    'Dal': 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=400&q=80',
+                    'default': 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=400&q=80'
+                },
+                'Snacks': {
+                    'Chips': 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?auto=format&fit=crop&w=400&q=80',
+                    'Biscuits': 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?auto=format&fit=crop&w=400&q=80',
+                    'default': 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?auto=format&fit=crop&w=400&q=80'
                 },
                 'default': 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=400&q=80'
             };

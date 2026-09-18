@@ -611,7 +611,7 @@
             col.className = 'col';
 
             const outOfStock = parseInt(p.Stock) <= 0;
-            const fallbackHtml = window.Products.getProductPlaceholder(p.Category_Name, p.Product_Name);
+            const fallbackUrl = window.Products.getProductImage(p.Category_Name, p.Product_Name);
             const imgPath = `../uploads/product_${p.Product_ID}.jpg`;
 
             // Calculate mock discount based on product ID odd/even to look dynamic
@@ -630,7 +630,7 @@
                         <i class="bi bi-heart"></i>
                     </button>
                     <div class="product-image-container cursor-pointer" onclick="goToDetails(${p.Product_ID})">
-                        <img src="${imgPath}" onerror="this.outerHTML='${fallbackHtml.replace(/'/g, "\\'")}'" alt="${p.Product_Name}">
+                        <img src="${imgPath}" onerror="this.onerror=null; this.src='${fallbackUrl}'" alt="${p.Product_Name}">
                         <div class="product-eta-badge">
                             <i class="bi bi-lightning-fill text-warning"></i>
                             <span>10 MINS</span>
@@ -724,13 +724,13 @@
 
             items.forEach(item => {
                 const itemSub = item.Price * item.Quantity;
-                const fallbackHtml = window.Products.getProductPlaceholder(item.Category_Name, item.Product_Name);
+                const fallbackUrl = window.Products.getProductImage(item.Category_Name, item.Product_Name);
                 const imgPath = `../uploads/product_${item.Product_ID}.jpg`;
 
                 tbody.innerHTML += `
                     <div class="cart-item-row">
                         <div class="cart-item-img">
-                            <img src="${imgPath}" onerror="this.outerHTML='${fallbackHtml.replace(/'/g, "\\'")}'">
+                            <img src="${imgPath}" onerror="this.onerror=null; this.src='${fallbackUrl}'">
                         </div>
                         <div class="cart-item-details">
                             <div class="cart-item-title">${item.Product_Name}</div>
