@@ -35,7 +35,7 @@ define('DB_HOST', '127.0.0.1');
 define('DB_PORT', '3306');
 define('DB_NAME', 'Grocery_app');
 define('DB_USER', 'root');
-define('DB_PASS', '1234'); // Adjust if local environment has a password
+define('DB_PASS', ''); // Adjust if local environment has a password
 
 // Admin Credentials (Option 1: Config-based Authentication)
 // Username: admin
