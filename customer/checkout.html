@@ -139,14 +139,6 @@
                         <span>Customer Profile & Shipping Address</span>
                     </div>
                     
-                    <div class="mb-3">
-                        <label for="checkoutCustomer" class="form-label fw-700 text-secondary mb-2" style="font-size: 0.85rem;">Active Shopper Profile</label>
-                        <select class="form-select form-premium" id="checkoutCustomer" required>
-                            <option value="" disabled selected>Select customer profile</option>
-                            <!-- Customers populated dynamically -->
-                        </select>
-                        <div class="form-text small text-secondary">Choose the customer account placing this instant order.</div>
-                    </div>
 
                     <div id="profileAddressSection" class="address-detail-box mt-4" style="display:none;">
                         <h6 class="fw-800 text-success mb-3"><i class="bi bi-geo-alt-fill me-1"></i>Delivery Details</h6>
@@ -266,7 +258,7 @@
     
     <script>
         let selectedPayment = 'UPI';
-        let customersList = [];
+
         let activeCustomer = null;
 
         document.addEventListener('DOMContentLoaded', async () => {
@@ -283,15 +275,6 @@
             loadOrderSummary();
             await loadCustomers();
 
-            // Bind selectors
-            document.getElementById('checkoutCustomer').addEventListener('change', (e) => {
-                const id = e.target.value;
-                localStorage.setItem('active_customer_id', id);
-                
-                // Fetch customer details and update summary
-                activeCustomer = customersList.find(c => parseInt(c.Customer_ID) === parseInt(id));
-                updateCustomerSection();
-            });
 
             // Handle Order Submission
             document.getElementById('placeOrderBtn').addEventListener('click', async () => {
@@ -315,22 +298,11 @@
 
         async function loadCustomers() {
             try {
-                const res = await window.API.get('crud_handlers.php', { module: 'customers', action: 'list' });
-                if (res.success) {
-                    customersList = res.data;
-                    const select = document.getElementById('checkoutCustomer');
-                    select.innerHTML = '<option value="" disabled selected>Select customer profile</option>';
-                    
-                    const savedCustId = window.Cart.getCustomerId();
-                    
-                    res.data.forEach(c => {
-                        const isSelected = parseInt(c.Customer_ID) === parseInt(savedCustId);
-                        select.innerHTML += `<option value="${c.Customer_ID}" ${isSelected ? 'selected' : ''}>${c.Name} (${c.Phone})</option>`;
-                        if (isSelected) {
-                            activeCustomer = c;
-                        }
-                    });
-
+                const savedCustId = window.Cart.getCustomerId();
+                if (!savedCustId) return;
+                const res = await window.API.get('crud_handlers.php', { module: 'customers', action: 'get', id: savedCustId });
+                if (res.success && res.data) {
+                    activeCustomer = res.data;
                     updateCustomerSection();
                 }
             } catch (err) {

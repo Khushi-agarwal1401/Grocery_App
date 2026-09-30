@@ -312,7 +312,7 @@
                     res.data.forEach(c => {
                         tbody.innerHTML += `
                             <tr>
-                                <td><strong>#${c.Customer_ID}</strong></td>
+                                <td data-order="${c.Customer_ID}"><strong>#${c.Customer_ID}</strong></td>
                                 <td><span class="fw-700">${c.Name}</span></td>
                                 <td>${c.Email || 'No email'}</td>
                                 <td><span class="text-muted" style="font-family: monospace;">${c.Password || c.Name.split(' ')[0].toLowerCase() + '123'}</span></td>
